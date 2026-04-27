@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.firebase/
+.env
+.env.*
+!.env.example
+*.log
+coverage/
+.DS_Store
+Thumbs.db
+
+# Security keys
+service-account*.json

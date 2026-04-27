@@ -1,0 +1,21 @@
+flowchart TD
+    A["Login / Register<br/>(Phone number + OTP)<br/>Profile: Name, Phone, Age"] --> B["Book BOV"]
+    B --> C["Number of Passengers?"]
+    C --> D["Any Elderly / PwD?<br/>Yes or No"]
+    D --> E["Journey Type?<br/>Arrival or Departure"]
+
+    E -->|Arrival| F["Enter Your PNR<br/>(auto-fetch: platform, coach, train name)"]
+    F --> G["Luggage?<br/>None / Light / Heavy"]
+
+    E -->|Departure| H["Do you have a reservation?<br/>Yes or No"]
+    H -->|Yes| I["Enter Your PNR<br/>(auto-fetch: platform, coach, train name)"]
+    H -->|No| J["Enter Train No.<br/>(manual platform selection shown)"]
+    I --> K["Select Pickup Point<br/>Point A / Point B / Point C / Point D"]
+    J --> K
+    K --> L["Luggage?<br/>None / Light / Heavy"]
+
+    G --> M["Confirmation Screen<br/>Summary: passengers, priority flag, journey type,<br/>platform/pickup, train details, luggage type<br/>Action: Confirm Booking"]
+    L --> M
+
+    M --> N["Later: Booking confirmed<br/>Token generated (example: HHBL-047)<br/>Driver and station staff notified"]
+    N --> O["Ride complete and rating"]

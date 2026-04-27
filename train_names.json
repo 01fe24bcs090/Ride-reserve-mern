@@ -1,0 +1,610 @@
+{
+  "11005": {
+    "name": "11005 Puducherry Exp",
+    "platform": "2"
+  },
+  "11006": {
+    "name": "11006 Chalukya Exp",
+    "platform": "1"
+  },
+  "11021": {
+    "name": "11021 Dadar Ten Exp",
+    "platform": "2"
+  },
+  "11022": {
+    "name": "11022 Ten Dr Express",
+    "platform": "1"
+  },
+  "11035": {
+    "name": "11035 Sharavati Exp",
+    "platform": "2"
+  },
+  "11036": {
+    "name": "11036 Sharavati Exp",
+    "platform": "1"
+  },
+  "12079": {
+    "name": "12079 Janshatabdi Exp",
+    "platform": "2"
+  },
+  "12080": {
+    "name": "12080 Janshatabdi Exp",
+    "platform": "2"
+  },
+  "12629": {
+    "name": "12629 Sampark Kranti",
+    "platform": "1"
+  },
+  "12630": {
+    "name": "12630 Ypr S Krnti Exp",
+    "platform": "3"
+  },
+  "12649": {
+    "name": "12649 Sampark Kranti",
+    "platform": "3"
+  },
+  "12650": {
+    "name": "12650 Ypr Sampark Krt",
+    "platform": "4"
+  },
+  "12725": {
+    "name": "12725 Siddaganga Exp",
+    "platform": "1"
+  },
+  "12726": {
+    "name": "12726 Siddaganga Exp",
+    "platform": "3"
+  },
+  "12741": {
+    "name": "12741 Vsg Patna Exp",
+    "platform": null
+  },
+  "12742": {
+    "name": "12742 Pnbe Vsg Exp",
+    "platform": null
+  },
+  "12777": {
+    "name": "12777 Ubl Tvcn Sf Exp",
+    "platform": "8"
+  },
+  "12778": {
+    "name": "12778 Tvcn Ubl Sf Exp",
+    "platform": "7"
+  },
+  "12779": {
+    "name": "12779 Goa Express",
+    "platform": null
+  },
+  "12780": {
+    "name": "12780 Goa Express",
+    "platform": null
+  },
+  "12781": {
+    "name": "12781 Swarna Jayanthi",
+    "platform": "1"
+  },
+  "12782": {
+    "name": "12782 Nzm Mys Sf Exp",
+    "platform": "2"
+  },
+  "14805": {
+    "name": "14805 Barmer Ac Exp",
+    "platform": "4"
+  },
+  "14806": {
+    "name": "14806 Bme Ypr Ac Exp",
+    "platform": "5"
+  },
+  "16209": {
+    "name": "16209 Aii Mys Exp",
+    "platform": "1"
+  },
+  "16210": {
+    "name": "16210 Ajmer Express",
+    "platform": "1"
+  },
+  "16531": {
+    "name": "16531 Aii Sbc G Nawaj",
+    "platform": "1"
+  },
+  "16532": {
+    "name": "16532 Garib Nawaz Exp",
+    "platform": "3"
+  },
+  "16533": {
+    "name": "16533 Ju Sbc Exp",
+    "platform": "3"
+  },
+  "16534": {
+    "name": "16534 Jodhpur Exp",
+    "platform": "3"
+  },
+  "16535": {
+    "name": "16535 Golgumbaz Exp",
+    "platform": "1"
+  },
+  "16536": {
+    "name": "16536 Golgumbaz Exp",
+    "platform": "4"
+  },
+  "16541": {
+    "name": "16541 Ypr Pvr Exp",
+    "platform": "1"
+  },
+  "16542": {
+    "name": "16542 Pvr Ypr Exp",
+    "platform": "3"
+  },
+  "16587": {
+    "name": "16587 Bikaner Exp",
+    "platform": "5"
+  },
+  "16588": {
+    "name": "16588 Bkn Ypr Exp",
+    "platform": "5"
+  },
+  "16589": {
+    "name": "16589 Rani Chennamma",
+    "platform": "1"
+  },
+  "16590": {
+    "name": "16590 Rani Chennamma",
+    "platform": "1"
+  },
+  "16591": {
+    "name": "16591 Hampi Express",
+    "platform": "5"
+  },
+  "16592": {
+    "name": "16592 Hampi Express",
+    "platform": "5"
+  },
+  "17021": {
+    "name": "17021 Hyb Vsg Express",
+    "platform": "4"
+  },
+  "17039": {
+    "name": "17039 Sc Vsg Express",
+    "platform": "3"
+  },
+  "17040": {
+    "name": "17040 Vsg Sc Express",
+    "platform": "1"
+  },
+  "17049": {
+    "name": "17049 Hyderabad Exp",
+    "platform": "5"
+  },
+  "17050": {
+    "name": "17050 Hyb Ubl Exp",
+    "platform": "7"
+  },
+  "17225": {
+    "name": "17225 Amaravathi Exp",
+    "platform": "4"
+  },
+  "17226": {
+    "name": "17226 Amaravathi Exp",
+    "platform": "3"
+  },
+  "17301": {
+    "name": "17301 Mys Bgm Exp",
+    "platform": "1"
+  },
+  "17302": {
+    "name": "17302 Bgm Mys Exp",
+    "platform": "3"
+  },
+  "17303": {
+    "name": "17303 Sss Hubballi - Sindhanur Express",
+    "platform": "3"
+  },
+  "17304": {
+    "name": "17304 Sindhanur - Sss Hubballi Express",
+    "platform": "4"
+  },
+  "17309": {
+    "name": "17309 Ypr Vsg Exp",
+    "platform": "2"
+  },
+  "17310": {
+    "name": "17310 Vsg Ypr Exp",
+    "platform": "3"
+  },
+  "17313": {
+    "name": "17313 Ubl Mas Exp",
+    "platform": "8"
+  },
+  "17314": {
+    "name": "17314 Mas Ubl Express",
+    "platform": "7"
+  },
+  "17315": {
+    "name": "17315 Velankanni Exp",
+    "platform": "1"
+  },
+  "17316": {
+    "name": "17316 Vasco Express",
+    "platform": "1"
+  },
+  "17317": {
+    "name": "17317 Ubl Dr Express",
+    "platform": "2"
+  },
+  "17318": {
+    "name": "17318 Dr Hubballi Exp",
+    "platform": "2"
+  },
+  "17321": {
+    "name": "17321 Vsg Jsme Exp",
+    "platform": "1"
+  },
+  "17322": {
+    "name": "17322 Jsme Vsg Exp",
+    "platform": "1"
+  },
+  "17323": {
+    "name": "17323 Ubl Bsbs Exp",
+    "platform": "3"
+  },
+  "17324": {
+    "name": "17324 Bnrs Ubl Expres",
+    "platform": "2"
+  },
+  "17327": {
+    "name": "17327 Sss Hubballi - Kushtagi Express",
+    "platform": "6"
+  },
+  "17328": {
+    "name": "17328 Kushtagi - Sss Hubballi Express",
+    "platform": "6"
+  },
+  "17329": {
+    "name": "17329 Ubl Bza Exp",
+    "platform": "8"
+  },
+  "17330": {
+    "name": "17330 Bza Ubl Exp",
+    "platform": "4"
+  },
+  "17331": {
+    "name": "17331 Miraj - Sss Hubballi Express",
+    "platform": "3"
+  },
+  "17332": {
+    "name": "17332 Sss Hubballi - Miraj Express",
+    "platform": "1"
+  },
+  "17348": {
+    "name": "17348 Chitradurga - Sss Hubballi Memu Express",
+    "platform": "-"
+  },
+  "17377": {
+    "name": "17377 Bjp Maq Exp",
+    "platform": "6"
+  },
+  "17378": {
+    "name": "17378 Maq Bjp Express",
+    "platform": "4"
+  },
+  "17391": {
+    "name": "17391 Sbc Snnr Exp",
+    "platform": "6"
+  },
+  "17392": {
+    "name": "17392 Snnr Sbc Exp",
+    "platform": "6"
+  },
+  "17415": {
+    "name": "17415 Haripriya Exp",
+    "platform": "1"
+  },
+  "17416": {
+    "name": "17416 Haripriya Exp",
+    "platform": "4"
+  },
+  "17419": {
+    "name": "17419 Tpty Vsg Exp",
+    "platform": "3"
+  },
+  "17420": {
+    "name": "17420 Vsg Tpty Exp",
+    "platform": "3"
+  },
+  "17421": {
+    "name": "17421 Tpty Qln Express",
+    "platform": null
+  },
+  "18047": {
+    "name": "18047 Amaravati Exp",
+    "platform": "4"
+  },
+  "18048": {
+    "name": "18048 Vsg Shm Exp",
+    "platform": "1"
+  },
+  "19667": {
+    "name": "19667 Mys Humsafar Exp",
+    "platform": "2"
+  },
+  "19668": {
+    "name": "19668 Udz Humsafar Exp",
+    "platform": "1"
+  },
+  "20653": {
+    "name": "20653 Sbc Bgm Exp",
+    "platform": "1"
+  },
+  "20654": {
+    "name": "20654 Bgm Sbc Exp",
+    "platform": "3"
+  },
+  "20655": {
+    "name": "20655 Ypr Ubl Exp",
+    "platform": "2"
+  },
+  "20656": {
+    "name": "20656 Ubl Ypr Exp",
+    "platform": "2"
+  },
+  "20657": {
+    "name": "20657 Ubl Nzm Exp",
+    "platform": "4"
+  },
+  "20658": {
+    "name": "20658 Nzm Ubl Sf Exp",
+    "platform": "2"
+  },
+  "20661": {
+    "name": "20661 Dwr Vande Bharat",
+    "platform": "1"
+  },
+  "20662": {
+    "name": "20662 Sbc Vande Bharat",
+    "platform": "1"
+  },
+  "20669": {
+    "name": "20669 Ubl Pune Vb Exp",
+    "platform": "1"
+  },
+  "20670": {
+    "name": "20670 Ubl Vandebharat",
+    "platform": "1"
+  },
+  "20675": {
+    "name": "20675 Vishwamanav Exp",
+    "platform": "3"
+  },
+  "20676": {
+    "name": "20676 Vishwamanav Exp",
+    "platform": "1"
+  },
+  "20679": {
+    "name": "20679 Mas Ubl Sf Exp",
+    "platform": "6"
+  },
+  "20680": {
+    "name": "20680 Ubl Mas Sf Exp",
+    "platform": "8"
+  },
+  "20685": {
+    "name": "20685 Gimb Sbc Sf Exp",
+    "platform": "3"
+  },
+  "20686": {
+    "name": "20686 Gandhidham Exp",
+    "platform": "2"
+  },
+  "20687": {
+    "name": "20687 Ubl Sbc Sf Exp",
+    "platform": "3"
+  },
+  "20688": {
+    "name": "20688 Sbc Ubl Sf Exp",
+    "platform": "2"
+  },
+  "20693": {
+    "name": "20693 Ju Sbc Superfast",
+    "platform": "1"
+  },
+  "20694": {
+    "name": "20694 Jodhpur Exp",
+    "platform": "1"
+  },
+  "22497": {
+    "name": "22497 Sgnr Tpj Humsfar",
+    "platform": "3"
+  },
+  "22498": {
+    "name": "22498 Sgnr Humsafar",
+    "platform": "2"
+  },
+  "22685": {
+    "name": "22685 Cdg Skranti Exp",
+    "platform": "1"
+  },
+  "22686": {
+    "name": "22686 Karntk S Kranti",
+    "platform": "3"
+  },
+  "22697": {
+    "name": "22697 Ubl Mas Sf Exp",
+    "platform": "8"
+  },
+  "22698": {
+    "name": "22698 Mas Ubl Sf Exp",
+    "platform": "7"
+  },
+  "26751": {
+    "name": "26751 Sbc Vande Bharat",
+    "platform": "1"
+  },
+  "26752": {
+    "name": "26752 Bgm Vande Bharat",
+    "platform": "1"
+  },
+  "51461": {
+    "name": "51461 Belagavi - Miraj Passenger",
+    "platform": null
+  },
+  "51462": {
+    "name": "51462 Miraj - Belagavi Passenger",
+    "platform": null
+  },
+  "51463": {
+    "name": "51463 Belagavi - Miraj Passenger",
+    "platform": null
+  },
+  "51464": {
+    "name": "51464 Miraj - Belagavi Passenger",
+    "platform": null
+  },
+  "56903": {
+    "name": "56903 Sur Dharwar Pass",
+    "platform": "3"
+  },
+  "56904": {
+    "name": "56904 Dwr Sur Passenge",
+    "platform": "1"
+  },
+  "56905": {
+    "name": "56905 Solapur - Hubballi Passenger",
+    "platform": "6"
+  },
+  "56906": {
+    "name": "56906 Hubballi - Solapur Passenger",
+    "platform": "6"
+  },
+  "56911": {
+    "name": "56911 Hubballi - Guntakal Memu",
+    "platform": "6"
+  },
+  "56912": {
+    "name": "56912 Guntakal - Hubballi Memu",
+    "platform": "6"
+  },
+  "56927": {
+    "name": "56927 Sss Hubballi - Sindhanur Passenger",
+    "platform": "5"
+  },
+  "56928": {
+    "name": "56928 Sindhanur - Sss Hubballi Passenger",
+    "platform": "-"
+  },
+  "56961": {
+    "name": "56961 Kulem - Vasco Da Gama Passenger",
+    "platform": null
+  },
+  "56962": {
+    "name": "56962 Vasco Da Gama - Kulem Passenger",
+    "platform": null
+  },
+  "56963": {
+    "name": "56963 Kulem - Vasco-da-gama Passenger",
+    "platform": null
+  },
+  "56964": {
+    "name": "56964 Vasco-da-gama - Kulem Passenger",
+    "platform": null
+  },
+  "56965": {
+    "name": "56965 Kulem - Vasco Da Gama Passenger",
+    "platform": null
+  },
+  "56966": {
+    "name": "56966 Vasco Da Gama - Kulem Passenger",
+    "platform": null
+  },
+  "57401": {
+    "name": "57401 Tpty Ubl Pass",
+    "platform": "5"
+  },
+  "57402": {
+    "name": "57402 Ubl Tpty Pas",
+    "platform": "5"
+  },
+  "06919": {
+    "name": "06919 Sss Hubballi - Vijayapura Passenger Special",
+    "platform": "4"
+  },
+  "07355": {
+    "name": "07355 Ubl Rmm Exp",
+    "platform": "3"
+  },
+  "07357": {
+    "name": "07357 Ubl Rxl Spl",
+    "platform": "-"
+  },
+  "07313": {
+    "name": "07313 Ubl Qln Spl",
+    "platform": "2"
+  },
+  "07329": {
+    "name": "07329 Sss Hubballi - Vijayapura Intercity Express Special",
+    "platform": "7"
+  },
+  "07315": {
+    "name": "07315 Ubl Mfp Spl",
+    "platform": "1"
+  },
+  "07359": {
+    "name": "07359 Ubl Bgkt Spl",
+    "platform": "-"
+  },
+  "07363": {
+    "name": "07363 Ubl Ynrk Spl",
+    "platform": "2"
+  },
+  "07394": {
+    "name": "07394 Sss Hubballi - Hosapete Demu Special",
+    "platform": "4"
+  },
+  "07393": {
+    "name": "07393 Hosapete - Sss Hubballi Demu Special",
+    "platform": "-"
+  },
+  "07358": {
+    "name": "07358 Rxl Ubl Puja Spl",
+    "platform": "-"
+  },
+  "07364": {
+    "name": "07364 Ynrk Ubl Spl",
+    "platform": "3"
+  },
+  "07330": {
+    "name": "07330 Vijayapura - Sss Hubballi Intercity Express Special",
+    "platform": "7"
+  },
+  "07316": {
+    "name": "07316 Mfp Ubl Spl",
+    "platform": "-"
+  },
+  "07360": {
+    "name": "07360 Bgkt Ubl Spl",
+    "platform": "-"
+  },
+  "06920": {
+    "name": "06920 Vijayapura - Sss Hubballi Passenger Special",
+    "platform": "-"
+  },
+  "07314": {
+    "name": "07314 Qln Ubl Spl",
+    "platform": "-"
+  },
+  "07356": {
+    "name": "07356 Rmm Ubl Spl",
+    "platform": "-"
+  },
+  "07311": {
+    "name": "07311 Ubl Smvb Spl",
+    "platform": "-"
+  },
+  "07312": {
+    "name": "07312 Smvb Ubl Spl",
+    "platform": null
+  },
+  "07336": {
+    "name": "07336 Mugr Bgm Spl",
+    "platform": "5"
+  }
+}

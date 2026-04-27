@@ -1,0 +1,26 @@
+{
+  "name": "ride-reserve",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "functions",
+    "shared/types"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "dev:passenger": "npm run dev -w apps/passenger-web",
+    "dev:driver": "npm run dev -w apps/driver-web",
+    "dev:admin": "npm run dev -w apps/admin-web"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "firebase-admin": "^12.7.0",
+    "xlsx": "^0.18.5"
+  }
+}
