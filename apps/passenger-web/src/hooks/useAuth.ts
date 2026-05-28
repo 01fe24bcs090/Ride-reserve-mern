@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { User } from "firebase/auth";
 import { 
-  subscribeToAuthChanges, 
   loadPassengerProfile, 
   signInPassenger, 
   signUpPassenger, 
@@ -15,32 +13,36 @@ export function useAuth() {
   const [passengerProfile, setPassengerProfile] = useState<PassengerProfile | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
   const [authResolved, setAuthResolved] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(true);
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    const unsubscribe = subscribeToAuthChanges(async (user: User | null) => {
-      if (!user) {
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
         setPassengerProfile(null);
         setSessionReady(false);
         setAuthResolved(true);
+        setBusy(false);
         return;
       }
 
       try {
-        const liveProfile = await loadPassengerProfile(user);
+        const liveProfile = await loadPassengerProfile();
         setPassengerProfile(liveProfile);
         setSessionReady(liveProfile.role === "passenger");
       } catch (error) {
         setPassengerProfile(null);
         setSessionReady(false);
+        localStorage.removeItem('token');
         setStatus(error instanceof Error ? error.message : "Unable to load profile.");
       } finally {
         setAuthResolved(true);
+        setBusy(false);
       }
-    });
+    };
 
-    return unsubscribe;
+    initAuth();
   }, []);
 
   const login = async (input: PassengerSignInInput) => {

@@ -1,107 +1,30 @@
-import type { BookingDoc } from "@ride-reserve/types";
-import {
-  collection,
-  onSnapshot,
-  query,
-  where,
-  doc,
-  getDoc,
-} from "firebase/firestore";
-import { httpsCallable } from "firebase/functions";
-import { db, functions, auth, firebaseReady } from "./firebase";
+import type { BookingDoc, BookingCreateInput } from "@ride-reserve/types";
+import api from "../api/client";
 import { mockTrainByNumber } from "./mockData";
-import { allocateBookingClientSide, estimateFareClientSide } from "./allocation";
+import { estimateFareClientSide } from "./allocation";
 
 export type JourneyType = "arrival" | "departure";
-export type LuggageType = "none" | "light" | "heavy";
-
-export interface BookingPayload {
-  trainNumber: string;
-  toPlatform: string;
-  seats: number;
-  passengerCount: number;
-  journeyType: JourneyType;
-  pickupPoint?: string;
-  luggageType: LuggageType;
-  isPriorityPassenger: boolean;
-}
+// Removed duplicate BookingPayload in favor of BookingCreateInput
 
 export interface BookingHistoryItem extends BookingDoc {}
 
-function toIsoString(value: unknown) {
-  if (
-    value &&
-    typeof value === "object" &&
-    "toDate" in value &&
-    typeof (value as { toDate?: unknown }).toDate === "function"
-  ) {
-    return (value as { toDate: () => Date }).toDate().toISOString();
-  }
-
-  if (typeof value === "string") {
-    return value;
-  }
-
-  return new Date().toISOString();
-}
-
-function normalizeBookingDoc(id: string, data: Record<string, unknown>): BookingHistoryItem {
-  return {
-    bookingId: typeof data.bookingId === "string" ? data.bookingId : id,
-    passengerId: typeof data.passengerId === "string" ? data.passengerId : "",
-    passengerName: typeof data.passengerName === "string" ? data.passengerName : "Passenger",
-    trainNumber: typeof data.trainNumber === "string" ? data.trainNumber : "",
-    journeyType: data.journeyType === "departure" ? "departure" : "arrival",
-    isPriorityPassenger: Boolean(data.isPriorityPassenger),
-    luggageType:
-      data.luggageType === "light" || data.luggageType === "heavy" ? data.luggageType : "none",
-    fromPlatform: typeof data.fromPlatform === "string" ? data.fromPlatform : "",
-    toPlatform: typeof data.toPlatform === "string" ? data.toPlatform : "",
-    pickupPoint: typeof data.pickupPoint === "string" ? data.pickupPoint : null,
-    passengerCount:
-      typeof data.passengerCount === "number"
-        ? data.passengerCount
-        : typeof data.seats === "number"
-          ? data.seats
-          : 0,
-    seats: typeof data.seats === "number" ? data.seats : 0,
-    seatNumbers: Array.isArray(data.seatNumbers)
-      ? data.seatNumbers.filter((seat): seat is number => Number.isInteger(seat))
-      : [],
-    bovId: typeof data.bovId === "string" ? data.bovId : "",
-    bovVehicleNumber:
-      typeof data.bovVehicleNumber === "string" ? data.bovVehicleNumber : "",
-    rideStatus:
-      data.rideStatus === "pending" ||
-      data.rideStatus === "in-progress" ||
-      data.rideStatus === "completed" ||
-      data.rideStatus === "cancelled"
-        ? data.rideStatus
-        : "confirmed",
-    scheduledTime: toIsoString(data.scheduledTime),
-    isPeakHour: Boolean(data.isPeakHour),
-    fare: typeof data.fare === "number" ? data.fare : 0,
-    acceptedBy: typeof data.acceptedBy === "string" ? data.acceptedBy : null,
-    createdAt: toIsoString(data.createdAt),
-  };
-}
-
 export async function lookupTrain(trainNumber: string) {
-  if (firebaseReady && db) {
-    const trainRef = doc(db, "trains", trainNumber);
-    const trainSnap = await getDoc(trainRef);
+  try {
+    // Try to fetch from API first
+    const { data } = await api.get('/trains');
+    const train = data.find((t: any) => t.trainNumber === trainNumber);
     
-    if (!trainSnap.exists()) {
-      throw new Error("Train not found in database. Please verify the number.");
+    if (train) {
+      if (!train.isActive) {
+        throw new Error("This train is currently not available for BOV booking.");
+      }
+      return train;
     }
-    
-    const trainData = trainSnap.data();
-    if (!trainData.isActive) {
-      throw new Error("This train is currently not available for BOV booking.");
-    }
-    return trainData;
+  } catch (error) {
+    console.log("Falling back to local mock data for trains");
   }
 
+  // Fallback to local
   const local = mockTrainByNumber[trainNumber];
   if (!local) {
     throw new Error("Train not found. Please verify the number or contact station staff.");
@@ -116,49 +39,39 @@ export async function getFareEstimate(trainNumber: string, journeyType: JourneyT
   return await estimateFareClientSide(trainNumber, journeyType);
 }
 
-export async function createBooking(payload: BookingPayload) {
-  if (!auth?.currentUser) {
-    throw new Error("Authentication is required to create a booking.");
-  }
-
-  return await allocateBookingClientSide({
-    ...payload,
-    passengerId: auth.currentUser.uid,
-    passengerName: auth.currentUser.displayName || "Passenger",
-    lookupType: "trainNumber",
-  });
+export async function createBooking(payload: BookingCreateInput) {
+  const { data } = await api.post('/bookings', payload);
+  return { bookingId: data.bookingId };
 }
 
+// Subscribing to bookings now uses a simple fetch, real-time will be handled via Socket.io context 
+// For backward compatibility of the hook signature:
 export function subscribeToPassengerBookings(
   passengerId: string,
   onData: (items: BookingHistoryItem[]) => void,
   onError: (error: Error) => void,
 ) {
-  if (firebaseReady && db) {
-    const bookingsQuery = query(
-      collection(db, "bookings"),
-      where("passengerId", "==", passengerId),
-    );
+  let isSubscribed = true;
 
-    return onSnapshot(
-      bookingsQuery,
-      (snapshot) => {
-        const items = snapshot.docs
-          .map((docSnapshot) =>
-            normalizeBookingDoc(
-              docSnapshot.id,
-              docSnapshot.data() as Record<string, unknown>,
-            ),
-          )
-          .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-        onData(items);
-      },
-      (error) => {
-        onError(error);
-      },
-    );
-  }
+  const fetchBookings = async () => {
+    try {
+      const { data } = await api.get('/bookings/me');
+      if (isSubscribed) {
+        onData(data);
+      }
+    } catch (error) {
+      if (isSubscribed) {
+        onError(error instanceof Error ? error : new Error('Failed to fetch bookings'));
+      }
+    }
+  };
 
-  onData([]);
-  return () => {};
+  fetchBookings();
+  // Polling fallback if socket.io is not hooked up to this specific callback
+  const interval = setInterval(fetchBookings, 10000);
+
+  return () => {
+    isSubscribed = false;
+    clearInterval(interval);
+  };
 }

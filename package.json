@@ -11,16 +11,20 @@
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
+    "dev:server": "npm run dev -w @ride-reserve/server",
     "dev:passenger": "npm run dev -w apps/passenger-web",
     "dev:driver": "npm run dev -w apps/driver-web",
-    "dev:admin": "npm run dev -w apps/admin-web"
+    "dev:admin": "npm run dev -w apps/admin-web",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:passenger\" \"npm run dev:driver\" \"npm run dev:admin\""
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
     "csv-parser": "^3.2.0",
-    "firebase-admin": "^12.7.0",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

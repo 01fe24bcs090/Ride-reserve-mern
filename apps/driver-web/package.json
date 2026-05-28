@@ -11,10 +11,11 @@
     "lint": "echo \"No lint configured for driver-web\""
   },
   "dependencies": {
-    "firebase": "^11.0.2",
+    "@ride-reserve/types": "*",
+    "axios": "^1.16.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@ride-reserve/types": "*",
+    "socket.io-client": "^4.8.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {

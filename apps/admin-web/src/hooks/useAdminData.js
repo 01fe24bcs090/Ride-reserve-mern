@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { collection, onSnapshot, query, orderBy, where, limit } from "firebase/firestore";
-import { db } from "../lib/firebase";
-export function useAdminData() {
+import api from "../api/client";
+export function useAdminData(triggerRefetch) {
     const [bovs, setBovs] = useState([]);
     const [drivers, setDrivers] = useState([]);
     const [trains, setTrains] = useState([]);
@@ -10,35 +9,39 @@ export function useAdminData() {
     const [platforms, setPlatforms] = useState([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
-        if (!db)
-            return;
-        const unsubBovs = onSnapshot(collection(db, "bovs"), (snap) => {
-            setBovs(snap.docs.map(d => ({ ...d.data() })));
-        });
-        const unsubDrivers = onSnapshot(query(collection(db, "users"), where("role", "==", "driver")), (snap) => {
-            setDrivers(snap.docs.map(d => ({ ...d.data() })));
-        });
-        const unsubTrains = onSnapshot(collection(db, "trains"), (snap) => {
-            setTrains(snap.docs.map(d => ({ ...d.data() })));
-        });
-        const unsubBookings = onSnapshot(query(collection(db, "bookings"), orderBy("createdAt", "desc"), limit(200)), (snap) => {
-            setBookings(snap.docs.map(d => ({ ...d.data(), bookingId: d.id })));
-        });
-        const unsubPeak = onSnapshot(collection(db, "peakHours"), (snap) => {
-            setPeakHours(snap.docs.map(d => ({ ...d.data(), id: d.id })));
-        });
-        const unsubPlatforms = onSnapshot(collection(db, "platforms"), (snap) => {
-            setPlatforms(snap.docs.map(d => ({ ...d.data() })));
-        });
-        setLoading(false);
-        return () => {
-            unsubBovs();
-            unsubDrivers();
-            unsubTrains();
-            unsubBookings();
-            unsubPeak();
-            unsubPlatforms();
+        let isMounted = true;
+        const fetchData = async () => {
+            try {
+                const [{ data: bovsData }, { data: driversData }, { data: trainsData }, { data: bookingsData }, { data: peakHoursData }] = await Promise.all([
+                    api.get('/bovs'),
+                    api.get('/users/drivers'),
+                    api.get('/trains'),
+                    api.get('/bookings'),
+                    api.get('/peakhours')
+                ]);
+                if (isMounted) {
+                    setBovs(bovsData);
+                    setDrivers(driversData);
+                    setTrains(trainsData);
+                    setBookings(bookingsData);
+                    setPeakHours(peakHoursData);
+                    setPlatforms([]); // Hardcoded in mockData or add endpoint if needed
+                    setLoading(false);
+                }
+            }
+            catch (err) {
+                if (isMounted) {
+                    console.error("Failed to fetch admin data", err);
+                    setLoading(false);
+                }
+            }
         };
-    }, []);
+        fetchData();
+        const interval = setInterval(fetchData, 10000);
+        return () => {
+            isMounted = false;
+            clearInterval(interval);
+        };
+    }, [triggerRefetch]);
     return { bovs, drivers, trains, bookings, peakHours, platforms, loading };
 }

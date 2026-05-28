@@ -1,7 +1,5 @@
 import { useState, FormEvent } from "react";
-import { signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { auth, db } from "./lib/firebase";
+import api from "./api/client";
 
 type StaffRole = "admin" | "driver";
 
@@ -16,28 +14,13 @@ export default function StaffLogin() {
 
   async function handleLogin(e: FormEvent) {
     e.preventDefault();
-    if (!auth || !db) return;
-
     setBusy(true);
     setStatus(`Authenticating as ${activeTab}...`);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const { data } = await api.post('/auth/login', { email, password });
+      const userRole = data.user.role;
 
-      // Verify role in Firestore
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const userData = userDoc.data();
-
-      if (!userDoc.exists() || !userData) {
-        await signOut(auth);
-        throw new Error("No staff profile found for this account.");
-      }
-
-      const userRole = userData.role;
-
-      // Verify the user has the correct role for the tab they selected
       if (userRole !== activeTab) {
-        await signOut(auth);
         throw new Error(
           userRole === "admin" || userRole === "driver"
             ? `This account is registered as "${userRole}", not "${activeTab}". Please switch to the ${userRole === "admin" ? "Admin" : "Driver"} tab.`
@@ -45,7 +28,7 @@ export default function StaffLogin() {
         );
       }
 
-      setStatus(`Welcome, ${userData.name || "Staff"}! Redirecting to ${activeTab} dashboard...`);
+      setStatus(`Welcome, ${data.user.name || "Staff"}! Redirecting to ${activeTab} dashboard...`);
 
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
@@ -54,18 +37,14 @@ export default function StaffLogin() {
         driver: isLocal ? "http://localhost:5174" : "https://ride-reserve-driver.web.app",
       };
 
-      // Sign out from passenger-web domain (staff shouldn't stay logged in here)
-      await signOut(auth);
-
-      // Pass credentials to target app for cross-domain auth
       const targetUrl = `${targetMap[activeTab]}?e=${encodeURIComponent(email)}&p=${encodeURIComponent(password)}`;
 
       setTimeout(() => {
         window.location.href = targetUrl;
       }, 1200);
 
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Login failed.");
+    } catch (error: any) {
+      setStatus(error.response?.data?.error || error.message || "Login failed.");
     } finally {
       setBusy(false);
     }
@@ -73,7 +52,6 @@ export default function StaffLogin() {
 
   async function handleSignup(e: FormEvent) {
     e.preventDefault();
-    if (!auth || !db) return;
     if (!name.trim()) {
       setStatus("Please enter your name.");
       return;
@@ -82,18 +60,11 @@ export default function StaffLogin() {
     setBusy(true);
     setStatus(`Creating driver account...`);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Create driver document in Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        name: name.trim(),
-        email: email,
-        role: "driver",
-        active: true,
-        assignedBovId: null,
-        createdAt: new Date().toISOString()
+      await api.post('/auth/register', { 
+        name: name.trim(), 
+        email, 
+        password,
+        role: "driver" 
       });
 
       setStatus("Driver account created successfully! Redirecting...");
@@ -101,16 +72,13 @@ export default function StaffLogin() {
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
       const targetUrl = isLocal ? "http://localhost:5174" : "https://ride-reserve-driver.web.app";
       
-      // Sign out and redirect
-      await signOut(auth);
-      
       const redirectUrl = `${targetUrl}?e=${encodeURIComponent(email)}&p=${encodeURIComponent(password)}`;
       setTimeout(() => {
         window.location.href = redirectUrl;
       }, 1500);
 
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Signup failed.");
+    } catch (error: any) {
+      setStatus(error.response?.data?.error || error.message || "Signup failed.");
     } finally {
       setBusy(false);
     }
@@ -212,6 +180,9 @@ export default function StaffLogin() {
                   background: isAdmin
                     ? 'linear-gradient(135deg, #1a3a6b, #2d6cb5)'
                     : 'linear-gradient(135deg, #e65100, #ff6f1d)',
+                  boxShadow: isAdmin 
+                    ? '0 7px 16px rgba(26, 58, 107, 0.28)' 
+                    : undefined
                 }}>
                 {busy
                   ? (isSignup ? "Creating account..." : "Verifying credentials...")

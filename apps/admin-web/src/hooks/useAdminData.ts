@@ -1,9 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
-import { collection, onSnapshot, query, orderBy, where, limit } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { useState, useEffect } from "react";
+import api from "../api/client";
 import { BovDoc as Bov, UserDoc as Driver, TrainDoc as Train, PeakHourDoc as PeakHour, PlatformDoc as Platform, BookingDoc as Booking } from "@ride-reserve/types";
 
-export function useAdminData() {
+export function useAdminData(triggerRefetch: number) {
   const [bovs, setBovs] = useState<Bov[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [trains, setTrains] = useState<Train[]>([]);
@@ -13,43 +12,49 @@ export function useAdminData() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!db) return;
+    let isMounted = true;
+    
+    const fetchData = async () => {
+      try {
+        const [
+          { data: bovsData },
+          { data: driversData },
+          { data: trainsData },
+          { data: bookingsData },
+          { data: peakHoursData }
+        ] = await Promise.all([
+          api.get('/bovs'),
+          api.get('/users/drivers'),
+          api.get('/trains'),
+          api.get('/bookings'),
+          api.get('/peakhours')
+        ]);
+        
+        if (isMounted) {
+          setBovs(bovsData);
+          setDrivers(driversData);
+          setTrains(trainsData);
+          setBookings(bookingsData);
+          setPeakHours(peakHoursData);
+          setPlatforms([]); // Hardcoded in mockData or add endpoint if needed
+          setLoading(false);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error("Failed to fetch admin data", err);
+          setLoading(false);
+        }
+      }
+    };
 
-    const unsubBovs = onSnapshot(collection(db, "bovs"), (snap) => {
-      setBovs(snap.docs.map(d => ({ ...d.data() } as Bov)));
-    });
-
-    const unsubDrivers = onSnapshot(query(collection(db, "users"), where("role", "==", "driver")), (snap) => {
-      setDrivers(snap.docs.map(d => ({ ...d.data() } as Driver)));
-    });
-
-    const unsubTrains = onSnapshot(collection(db, "trains"), (snap) => {
-      setTrains(snap.docs.map(d => ({ ...d.data() } as Train)));
-    });
-
-    const unsubBookings = onSnapshot(query(collection(db, "bookings"), orderBy("createdAt", "desc"), limit(200)), (snap) => {
-      setBookings(snap.docs.map(d => ({ ...d.data(), bookingId: d.id } as Booking)));
-    });
-
-    const unsubPeak = onSnapshot(collection(db, "peakHours"), (snap) => {
-      setPeakHours(snap.docs.map(d => ({ ...d.data(), id: d.id } as PeakHour)));
-    });
-
-    const unsubPlatforms = onSnapshot(collection(db, "platforms"), (snap) => {
-      setPlatforms(snap.docs.map(d => ({ ...d.data() } as Platform)));
-    });
-
-    setLoading(false);
+    fetchData();
+    const interval = setInterval(fetchData, 10000);
 
     return () => {
-      unsubBovs();
-      unsubDrivers();
-      unsubTrains();
-      unsubBookings();
-      unsubPeak();
-      unsubPlatforms();
+      isMounted = false;
+      clearInterval(interval);
     };
-  }, []);
+  }, [triggerRefetch]);
 
   return { bovs, drivers, trains, bookings, peakHours, platforms, loading };
 }

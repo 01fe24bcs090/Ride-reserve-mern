@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Passenger Portal | Ride Reserve</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(26, 43, 72, 0.15);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(to right, rgba(3, 22, 50, 0.6) 0%, rgba(3, 22, 50, 0) 100%);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        .input-focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #1a2b48, 0 0 0 4px rgba(0, 103, 127, 0.2);
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#1a2b48",
+                        "secondary": "#00677f",
+                        "surface-variant": "#d3e4fe",
+                        "outline-variant": "#c5c6ce",
+                        "primary": "#031632",
+                        "on-secondary-container": "#005266",
+                        "on-secondary-fixed-variant": "#004e60",
+                        "on-error-container": "#93000a",
+                        "outline": "#75777e",
+                        "secondary-fixed": "#b7eaff",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-fixed": "#e0e3e6",
+                        "secondary-fixed-dim": "#4cd6ff",
+                        "on-surface-variant": "#44474d",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-container": "#00ccf9",
+                        "tertiary-container": "#282c2e",
+                        "surface-container-low": "#eff4ff",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary-fixed": "#181c1e",
+                        "on-tertiary-fixed-variant": "#43474a",
+                        "surface-container-high": "#dce9ff",
+                        "background": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#b6c7eb",
+                        "on-error": "#ffffff",
+                        "tertiary": "#13181a",
+                        "on-tertiary-container": "#8f9396",
+                        "on-primary-fixed-variant": "#374765",
+                        "on-primary-container": "#8293b5",
+                        "inverse-surface": "#213145",
+                        "on-background": "#0b1c30",
+                        "primary-fixed": "#d7e2ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed-dim": "#b6c7eb",
+                        "on-secondary-fixed": "#001f28",
+                        "surface-tint": "#4e5f7e",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "container-max": "1280px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "lg": "48px",
+                        "md": "24px",
+                        "sm": "12px",
+                        "xl": "80px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono-label": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "title-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "mono-label": ["13px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background font-body-lg text-on-surface antialiased">
+    <!-- Top Navigation Bar -->
+    <nav
+        class="bg-surface/80 dark:bg-primary/80 backdrop-blur-lg docked full-width top-0 sticky z-50 shadow-sm border-b border-white/20">
+        <div class="flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
+            <div class="flex items-center gap-2">
+                <span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Ride
+                    Reserve</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <a class="text-primary dark:text-secondary-fixed border-b-2 border-secondary pb-1 font-bold font-label-md text-label-md"
+                    href="#">Book Transfer</a>
+                <a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md"
+                    href="#">My Rides</a>
+                <a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md"
+                    href="#">Smart Station</a>
+                <a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md"
+                    href="#">Support</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <button
+                    class="bg-primary text-on-primary px-6 py-2 rounded-lg font-label-md text-label-md hover:opacity-80 transition-opacity duration-200 scale-95 active:scale-90 transition-transform">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </nav>
+    <main>
+        <!-- Hero Section -->
+        <section class="relative min-h-[85vh] flex items-center overflow-hidden">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0">
+                <img alt="Hubballi Junction Station at Dusk" class="w-full h-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuALtXwKtuzZpNTnoQ2rgvoSZ1U0vEhAiiDtbQv98vkGyr8wEHDmRfBozO92j1M2tTP2QaM41aAc6Mea-Ya5wI-u0X-kKj7LYkijqYxWD5Ta0X_ZCrWo-xw9wkt3EopVnC6Wm5wVDx0NREq7Z1pB3fge_1CUJTgsk3a3oOcBqJTyeQy8OQLGizjJHXRG00j29yZASv_ctO28-F7jkA2vDI3SDZ2d_1w213yiS7Zddq9odS6xeskkYExlXXVOiQTlrxi2kaAYxEMrkaI" />
+                <div class="absolute inset-0 hero-gradient"></div>
+            </div>
+            <div class="relative z-10 w-full max-w-container-max mx-auto px-gutter py-xl">
+                <div class="w-full lg:w-1/2">
+                    <!-- Glassmorphic Booking Card -->
+                    <div class="glass-card rounded-xl p-8 max-w-lg">
+                        <div class="flex gap-6 mb-8 border-b border-outline-variant/30">
+                            <button class="pb-3 text-primary border-b-2 border-primary font-bold transition-all"
+                                id="tab-transfer" onclick="switchTab('transfer')">
+                                <span class="font-title-lg text-title-lg">Book Platform Transfer</span>
+                            </button>
+                            <button class="pb-3 text-on-surface-variant hover:text-primary transition-all" id="tab-reg"
+                                onclick="switchTab('reg')">
+                                <span class="font-title-lg text-title-lg">Passenger Registration</span>
+                            </button>
+                        </div>
+                        <form class="space-y-6" onsubmit="event.preventDefault()">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block font-label-md text-label-md text-on-surface-variant">Source
+                                        Station</label>
+                                    <div class="relative">
+                                        <span
+                                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary">location_on</span>
+                                        <input
+                                            class="w-full pl-10 pr-4 py-3 bg-white/50 border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-primary focus:border-primary cursor-not-allowed"
+                                            readonly="" type="text" value="Hubballi Junction" />
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block font-label-md text-label-md text-on-surface-variant">Platform
+                                        Number</label>
+                                    <div class="relative">
+                                        <span
+                                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary">train</span>
+                                        <select
+                                            class="w-full pl-10 pr-4 py-3 bg-white/50 border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-primary focus:border-primary">
+                                            <option>Platform 1</option>
+                                            <option>Platform 2</option>
+                                            <option>Platform 3</option>
+                                            <option>Platform 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block font-label-md text-label-md text-on-surface-variant">Arrival
+                                        Time</label>
+                                    <div class="relative">
+                                        <span
+                                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary">schedule</span>
+                                        <input
+                                            class="w-full pl-10 pr-4 py-3 bg-white/50 border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-primary focus:border-primary"
+                                            type="time" />
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block font-label-md text-label-md text-on-surface-variant">Number of
+                                        Passengers</label>
+                                    <div class="relative">
+                                        <span
+                                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary">groups</span>
+                                        <input
+                                            class="w-full pl-10 pr-4 py-3 bg-white/50 border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-primary focus:border-primary"
+                                            max="10" min="1" type="number" value="1" />
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                class="w-full bg-primary text-on-primary py-4 rounded-lg font-title-lg text-title-lg font-bold hover:shadow-lg transition-all active:scale-[0.98] mt-4 flex items-center justify-center gap-2"
+                                type="submit">
+                                <span class="material-symbols-outlined"
+                                    style="font-variation-settings: 'FILL' 1;">bolt</span>
+                                Book Ride
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Features Section -->
+        <section class="bg-surface py-xl">
+            <div class="max-w-container-max mx-auto px-gutter">
+                <div class="text-center mb-16">
+                    <h2 class="font-display-lg text-display-lg text-primary mb-4">Modernizing Rail Mobility</h2>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Experience the future
+                        of rail travel with our integrated smart station services, designed for seamless transitions and
+                        ultimate passenger comfort.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+                    <!-- Smart Station Rides -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/30 hover:shadow-xl transition-all group">
+                        <div
+                            class="w-16 h-16 bg-secondary-container rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-on-secondary-container text-3xl"
+                                style="font-variation-settings: 'FILL' 1;">electric_car</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md text-primary mb-4">Smart Station Rides</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant">AI-driven navigation and EV
+                            shuttles strategically placed throughout the station for rapid, quiet, and eco-friendly
+                            mobility between complex terminal wings.</p>
+                    </div>
+                    <!-- Platform Transfers -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/30 hover:shadow-xl transition-all group">
+                        <div
+                            class="w-16 h-16 bg-secondary-container rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-on-secondary-container text-3xl"
+                                style="font-variation-settings: 'FILL' 1;">luggage</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md text-primary mb-4">Platform Transfers</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Seamless porter services and
+                            motorized luggage carts available at every platform to assist with heavy transit between
+                            connecting trains and arrival gates.</p>
+                    </div>
+                    <!-- Driver Dispatch -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/30 hover:shadow-xl transition-all group">
+                        <div
+                            class="w-16 h-16 bg-secondary-container rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-on-secondary-container text-3xl"
+                                style="font-variation-settings: 'FILL' 1;">hail</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md text-primary mb-4">Driver Dispatch</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Real-time coordination for
+                            last-mile connectivity. Your chauffeur is synchronized with train arrivals, ensuring no
+                            waiting time at the exit portal.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- CTA / Promotional Section -->
+        <section class="bg-primary-container py-xl overflow-hidden relative">
+            <div class="max-w-container-max mx-auto px-gutter grid grid-cols-1 lg:grid-cols-2 gap-xl items-center">
+                <div class="text-on-primary">
+                    <span
+                        class="font-label-md text-label-md uppercase tracking-widest text-secondary-container mb-4 block">Premium
+                        Experience</span>
+                    <h2 class="font-display-lg text-display-lg mb-6">Redefining the Station Arrival</h2>
+                    <p class="font-body-lg text-body-lg text-on-primary-container mb-8">From Hubballi Junction to the
+                        most connected stations worldwide, Ride Reserve ensures your journey doesn't end at the
+                        platform. We bridge the gap with elegance.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <button
+                            class="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-lg font-bold hover:bg-opacity-90 transition-all">Explore
+                            Stations</button>
+                        <button
+                            class="border border-outline-variant text-on-primary px-8 py-4 rounded-lg font-bold hover:bg-white/10 transition-all">View
+                            All Services</button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <img class="rounded-xl shadow-2xl scale-110 lg:translate-x-12"
+                        data-alt="A high-end modern electric shuttle car driving through a futuristic, well-lit railway station terminal. The lighting is crisp and cool, featuring blue and white hues that emphasize a clean, professional atmosphere. The composition is sleek and minimal, highlighting the premium design of the vehicle and its integration into the modern mobility ecosystem."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0cxgOAEEVduuiMb8kvUSign_aQpxmuM5AQDUBLNPQInegthvA9PXI9AvekRRsjjRpZwnxS2xwpK9KMnENPWlxxplCem49CUOVGlnmOUA_3Gdkt3dnsXGPLnaBLArl5IUn2pn945pSFJBbJVLj7QRrcxRLMVcWZmxtp96gColVejBrU_tAuITidyBr5a9Ypqvfy6vXG3gUoaraE6rUimF_uRqv3UB9wr_tkpEdQ13oQRTCbJCLxqcfmrLKmsXiLGYKIcvusApUXp8" />
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-primary dark:bg-surface-container-lowest full-width border-t border-white/10">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-md px-gutter py-xl max-w-container-max mx-auto">
+            <div class="space-y-6">
+                <span class="font-title-lg text-title-lg font-bold text-on-primary">Ride Reserve</span>
+                <p class="font-body-md text-body-md text-outline-variant max-w-xs">Modernizing rail mobility through
+                    precision engineering and passenger-centric technology.</p>
+                <div class="flex gap-4">
+                    <span
+                        class="material-symbols-outlined text-outline-variant cursor-pointer hover:text-secondary-container">language</span>
+                    <span
+                        class="material-symbols-outlined text-outline-variant cursor-pointer hover:text-secondary-container">shield</span>
+                    <span
+                        class="material-symbols-outlined text-outline-variant cursor-pointer hover:text-secondary-container">hub</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h4 class="font-label-md text-label-md text-secondary-container uppercase">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a class="font-body-md text-body-md text-outline-variant hover:text-on-primary transition-all"
+                                href="#">Rail Services</a></li>
+                        <li><a class="font-body-md text-body-md text-outline-variant hover:text-on-primary transition-all"
+                                href="#">Smart Initiatives</a></li>
+                        <li><a class="font-body-md text-body-md text-outline-variant hover:text-on-primary transition-all"
+                                href="#">Porter Assistance</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="font-label-md text-label-md text-secondary-container uppercase">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a class="font-body-md text-body-md text-outline-variant hover:text-on-primary transition-all"
+                                href="#">Company Info</a></li>
+                        <li><a class="font-body-md text-body-md text-outline-variant hover:text-on-primary transition-all"
+                                href="#">Privacy Policy</a></li>
+                        <li><a class="font-body-md text-body-md text-outline-variant hover:text-on-primary transition-all"
+                                href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <h4 class="font-label-md text-label-md text-secondary-container uppercase">Newsletter</h4>
+                <p class="font-body-md text-body-md text-outline-variant">Get the latest mobility updates.</p>
+                <div class="flex gap-2">
+                    <input
+                        class="bg-white/5 border border-white/10 rounded-lg px-4 py-2 w-full text-on-primary focus:outline-none focus:border-secondary-container"
+                        placeholder="Email address" type="email" />
+                    <button
+                        class="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-lg font-bold">Join</button>
+                </div>
+                <p class="font-label-md text-label-md text-outline-variant">© 2024 Ride Reserve. Modernizing rail
+                    mobility.</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        function switchTab(tab) {
+            const transferBtn = document.getElementById('tab-transfer');
+            const regBtn = document.getElementById('tab-reg');
+
+            if (tab === 'transfer') {
+                transferBtn.className = 'pb-3 text-primary border-b-2 border-primary font-bold transition-all';
+                regBtn.className = 'pb-3 text-on-surface-variant hover:text-primary transition-all';
+            } else {
+                regBtn.className = 'pb-3 text-primary border-b-2 border-primary font-bold transition-all';
+                transferBtn.className = 'pb-3 text-on-surface-variant hover:text-primary transition-all';
+            }
+        }
+    </script>
+</body>
+
+</html>

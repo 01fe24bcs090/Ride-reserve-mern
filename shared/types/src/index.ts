@@ -16,6 +16,7 @@ export interface UserDoc {
   name: string;
   email: string;
   phone: string;
+  aadharNumber?: string;
   age: number | null;
   role: UserRole;
   assignedBovId: string | null;
@@ -77,11 +78,14 @@ export interface BookingDoc {
   trainNumber: string;
   journeyType: JourneyType;
   isPriorityPassenger: boolean;
-  luggageType: LuggageType;
+  lightLuggageCount: number;
+  heavyLuggageCount: number;
+  luggageWeight?: number;
   fromPlatform: string;
   toPlatform: string;
   pickupPoint: string | null;
   passengerCount: number;
+  passengerAges: number[];
   seats: number;
   seatNumbers: number[];
   bovId: string;
@@ -100,7 +104,10 @@ export interface BookingCreateInput {
   toPlatform: string;
   journeyType: JourneyType;
   pickupPoint?: string;
-  luggageType: LuggageType;
+  lightLuggageCount: number;
+  heavyLuggageCount: number;
+  luggageWeight?: number;
   isPriorityPassenger: boolean;
   passengerCount: number;
+  passengerAges: number[];
 }
