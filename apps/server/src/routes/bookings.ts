@@ -3,6 +3,7 @@ import Booking from '../models/Booking';
 import Train from '../models/Train';
 import PeakHour from '../models/PeakHour';
 import Bov from '../models/Bov';
+import User from '../models/User';
 import { authenticate, AuthRequest, authorize } from '../middleware/auth';
 
 const router = express.Router();
@@ -74,6 +75,14 @@ router.post('/', authenticate, authorize(['passenger', 'admin']), async (req: Au
     bookingData.passengerId = req.user?.uid;
     bookingData.bookingId = `BKG-${Date.now()}`;
     bookingData.rideStatus = 'pending';
+    bookingData.startPin = Math.floor(1000 + Math.random() * 9000).toString();
+
+    const user = await User.findOne({ uid: req.user?.uid });
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+    bookingData.passengerName = user.name;
 
     // SERVER-SIDE FARE VALIDATION & ASSIGNMENT
     const baseFare = Number(process.env.BASE_FARE) || 20;
@@ -118,6 +127,13 @@ router.post('/', authenticate, authorize(['passenger', 'admin']), async (req: Au
     // Override the passenger-supplied fare with the server-calculated secure fare
     bookingData.fare = computedFare;
 
+    let scheduledDate = new Date();
+    if (scheduledHm) {
+      const [h, m] = scheduledHm.split(':').map(Number);
+      scheduledDate.setHours(h ?? 0, m ?? 0, 0, 0);
+    }
+    bookingData.scheduledTime = scheduledDate;
+
     // DYNAMIC SEAT SHARING OPTIMIZER
     const compatibleBooking = await Booking.findOne({
       trainNumber: bookingData.trainNumber,
@@ -155,7 +171,7 @@ router.post('/', authenticate, authorize(['passenger', 'admin']), async (req: Au
 // Update booking status (e.g., driver accepts)
 router.patch('/:id/status', authenticate, authorize(['driver', 'admin']), async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { status, bovId, bovVehicleNumber } = req.body;
+    const { status, bovId, bovVehicleNumber, pin } = req.body;
     const bookingId = req.params.id;
 
     const booking = await Booking.findOne({ bookingId });
@@ -164,13 +180,23 @@ router.patch('/:id/status', authenticate, authorize(['driver', 'admin']), async 
       return;
     }
 
-    // State machine logic
+    // State machine logic with OTP PIN verification for pick-up (Solution A)
     if (status === 'confirmed' && booking.rideStatus === 'pending') {
       booking.rideStatus = 'confirmed';
       booking.acceptedBy = req.user?.uid || null;
       if (bovId) booking.bovId = bovId;
       if (bovVehicleNumber) booking.bovVehicleNumber = bovVehicleNumber;
     } else {
+      if (status === 'in-progress') {
+        if (!pin) {
+          res.status(400).json({ error: 'Pick-up verification PIN is required to start the ride.' });
+          return;
+        }
+        if (booking.startPin && booking.startPin !== pin) {
+          res.status(400).json({ error: 'Invalid verification PIN. Please check the 4-digit PIN on the passenger\'s screen.' });
+          return;
+        }
+      }
       booking.rideStatus = status;
     }
 

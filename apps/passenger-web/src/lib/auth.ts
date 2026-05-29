@@ -24,10 +24,18 @@ export async function loadPassengerProfile(): Promise<PassengerProfile> {
   return data;
 }
 
-export async function signUpPassenger(input: PassengerSignUpInput): Promise<PassengerProfile> {
+export async function signUpPassenger(input: PassengerSignUpInput): Promise<any> {
   const { data } = await api.post('/auth/register', { ...input, role: 'passenger' });
-  localStorage.setItem('token', data.token);
-  return data.user;
+  // If OTP verification is required, return the response so App can show OTP screen
+  if (data.message === 'otp_sent') {
+    return data;
+  }
+  // Legacy fallback: if token was returned directly (shouldn't happen in new flow)
+  if (data.token) {
+    localStorage.setItem('token', data.token);
+    return data.user;
+  }
+  return data;
 }
 
 export async function signInPassenger(input: PassengerSignInInput): Promise<PassengerProfile> {

@@ -20,6 +20,8 @@ export async function lookupTrain(trainNumber: string) {
       }
       return train;
     }
+    // Force fallback to mock database if remote API doesn't have this train
+    throw new Error("Train not found in remote database.");
   } catch (error) {
     console.log("Falling back to local mock data for trains");
   }

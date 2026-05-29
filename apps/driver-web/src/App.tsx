@@ -19,7 +19,121 @@ export default function App() {
   const [aadharNumber, setAadharNumber] = useState("");
   const [aadharImage, setAadharImage] = useState<File | null>(null);
 
+  // OTP States
+  const [showOtpScreen, setShowOtpScreen] = useState(false);
+  const [verifyingEmail, setVerifyingEmail] = useState("");
+  const [otpValue, setOtpValue] = useState("");
+  const [otpStatus, setOtpStatus] = useState("");
+  const [countdown, setCountdown] = useState(0);
+
+  const [driverBov, setDriverBov] = useState<any>(null);
+  const [pins, setPins] = useState<Record<string, string>>({});
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const getDriverInitials = () => {
+    const name = user?.name;
+    if (!name) return "D";
+    const parts = name.trim().split(/\s+/);
+    const first = parts[0];
+    const last = parts[parts.length - 1];
+    if (first && last && parts.length >= 2) {
+      return (first.charAt(0) + last.charAt(0)).toUpperCase();
+    }
+    return first ? first.slice(0, 2).toUpperCase() : "D";
+  };
+  const driverInitials = getDriverInitials();
+
   const { rides, loading: ridesLoading, error: ridesError } = useDriverRides(user?.uid);
+
+  const formatBookingId = (id: string) => {
+    if (!id) return "";
+    const cleanId = id.replace('BKG-', '');
+    if (cleanId.length > 5) {
+      return '#' + cleanId.slice(-5);
+    }
+    return '#' + cleanId;
+  };
+
+  const stripEmojis = (text: string) => {
+    if (!text) return "";
+    return text.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "").trim();
+  };
+
+  useEffect(() => {
+    document.body.style.background = '#f8fafc';
+    document.body.style.margin = '0';
+    document.body.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  }, []);
+
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    if (!showProfileMenu) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('#profile-menu-container')) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [showProfileMenu]);
+
+  useEffect(() => {
+    if (!user || !user.assignedBovId) {
+      setDriverBov(null);
+      return;
+    }
+    const fetchBov = async () => {
+      try {
+        const { data } = await api.get(`/bovs/${user.assignedBovId}`);
+        setDriverBov(data);
+      } catch (err) {
+        console.error("Failed to fetch BOV info", err);
+      }
+    };
+    fetchBov();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || rides.length === 0) return;
+    
+    // Auto-simulate buggy progression for in-progress rides assigned to us
+    const activeRides = rides.filter((r: any) => r.acceptedBy === user.uid && r.rideStatus === "in-progress");
+    if (activeRides.length === 0) return;
+
+    const intervals = activeRides.map((ride: any) => {
+      const startPlatform = ride.fromPlatform || "Entrance";
+      const steps = ["Entrance", "Platform 1", "Platform 2", "Platform 3", "Platform 4", "Platform 5", "Arrived"];
+      
+      const startIndex = steps.indexOf(startPlatform) >= 0 ? steps.indexOf(startPlatform) : 0;
+      const relevantSteps = steps.slice(startIndex);
+      
+      let stepIdx = 0;
+      const interval = setInterval(() => {
+        if (stepIdx < relevantSteps.length) {
+          const nextPlat = relevantSteps[stepIdx];
+          socket.emit("driver_location_update", { bookingId: ride.bookingId, platform: nextPlat });
+          stepIdx++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 5000); // Progress platform location every 5 seconds
+      
+      return { id: ride.bookingId, interval };
+    });
+
+    return () => {
+      intervals.forEach(i => clearInterval(i.interval));
+    };
+  }, [rides, user]);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => {
+      setCountdown(prev => prev - 1);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -32,9 +146,9 @@ export default function App() {
         setAuthBusy(true);
         setStatus("Authenticating from staff portal...");
         try {
-          const { data } = await api.post('/auth/login', { 
-            email: decodeURIComponent(tokenEmail), 
-            password: decodeURIComponent(tokenPass) 
+          const { data } = await api.post('/auth/login', {
+            email: decodeURIComponent(tokenEmail),
+            password: decodeURIComponent(tokenPass)
           });
           localStorage.setItem('token', data.token);
           if (data.user.role === "driver") {
@@ -86,7 +200,14 @@ export default function App() {
         setStatus("Access denied. Drivers only.");
       }
     } catch (e: any) {
-      setStatus("Login failed: " + (e.response?.data?.error || e.message));
+      const errResponse = e.response?.data;
+      if (errResponse && errResponse.error === "email_not_verified") {
+        setVerifyingEmail(errResponse.email || authEmail);
+        setShowOtpScreen(true);
+        setOtpStatus("Your email is not verified. A new 6-digit code has been sent!");
+      } else {
+        setStatus("Login failed: " + (errResponse?.error || e.message));
+      }
     } finally {
       setAuthBusy(false);
     }
@@ -127,11 +248,61 @@ export default function App() {
         aadharNumber: aadharNumber,
         role: "driver"
       });
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
-      setStatus("Signup successful.");
+      if (data.message === "otp_sent") {
+        setVerifyingEmail(authEmail);
+        setShowOtpScreen(true);
+        setOtpStatus("A 6-digit verification code has been sent to your email!");
+      } else {
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        setStatus("Signup successful.");
+      }
     } catch (e: any) {
       setStatus("Signup failed: " + (e.response?.data?.error || e.message));
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    if (otpValue.length !== 6) {
+      setOtpStatus("Please enter a valid 6-digit code.");
+      return;
+    }
+    setAuthBusy(true);
+    setOtpStatus("");
+    try {
+      const { data } = await api.post("/auth/verify-otp", {
+        email: verifyingEmail,
+        otp: otpValue
+      });
+      if (data.user.role === "driver") {
+        localStorage.setItem("token", data.token);
+        setUser(data.user);
+        setStatus("Email verified successfully.");
+        setShowOtpScreen(false);
+      } else {
+        setOtpStatus("Access denied. Drivers only.");
+      }
+    } catch (err: any) {
+      const errMsg = err.response?.data?.error || err.message || "Invalid or expired code.";
+      setOtpStatus(errMsg);
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function handleResendOtp() {
+    setOtpStatus("");
+    setAuthBusy(true);
+    try {
+      await api.post("/auth/resend-otp", { email: verifyingEmail });
+      setOtpStatus("A new 6-digit verification code has been sent!");
+      setCountdown(60);
+    } catch (err: any) {
+      const errMsg = err.response?.data?.error || err.message || "Failed to resend code.";
+      setOtpStatus(errMsg);
     } finally {
       setAuthBusy(false);
     }
@@ -141,29 +312,45 @@ export default function App() {
     localStorage.removeItem('token');
     setUser(null);
     setStatus("Signed out.");
+    setShowOtpScreen(false);
+    setOtpValue("");
+    setOtpStatus("");
   }
 
   async function acceptRide(bookingId: string) {
     if (!user) return;
     setStatus(`Accepting ride...`);
     try {
-      // In a real app we might pass the driver's bovId here or the backend figures it out
-      await api.patch(`/bookings/${bookingId}`, {
-        rideStatus: "confirmed",
-        acceptedBy: user.uid,
+      await api.patch(`/bookings/${bookingId}/status`, {
+        status: "confirmed",
+        bovId: user.assignedBovId,
+        bovVehicleNumber: driverBov?.vehicleNumber || "KA-25-BOV-001"
       });
       setStatus("Ride accepted!");
-    } catch (e: any) { 
-      setStatus("Error: " + (e.response?.data?.error || e.message)); 
+    } catch (e: any) {
+      setStatus("Error: " + (e.response?.data?.error || e.message));
     }
   }
 
   async function updateStatus(bookingId: string, newStatus: RideStatus) {
     try {
-      await api.patch(`/bookings/${bookingId}`, { rideStatus: newStatus });
+      await api.patch(`/bookings/${bookingId}/status`, { status: newStatus });
       setStatus(`Status updated to ${newStatus}.`);
-    } catch (e: any) { 
-      setStatus("Error: " + (e.response?.data?.error || e.message)); 
+    } catch (e: any) {
+      setStatus("Error: " + (e.response?.data?.error || e.message));
+    }
+  }
+
+  async function startRideWithPin(bookingId: string, enteredPin: string) {
+    if (!enteredPin || enteredPin.length !== 4) {
+      setStatus("Error: Please enter the 4-digit pick-up PIN from the passenger.");
+      return;
+    }
+    try {
+      await api.patch(`/bookings/${bookingId}/status`, { status: "in-progress", pin: enteredPin });
+      setStatus("Ride started successfully!");
+    } catch (e: any) {
+      setStatus("Error: " + (e.response?.data?.error || e.message));
     }
   }
 
@@ -184,276 +371,1017 @@ export default function App() {
     setStatus("🚨 SOS emergency successfully broadcasted to Station Admin!");
   }
 
-  const sortedRides = [...rides].sort((a: any, b: any) => {
-    const aMine = a.acceptedBy === user?.uid;
-    const bMine = b.acceptedBy === user?.uid;
-    if (aMine && !bMine) return -1;
-    if (!aMine && bMine) return 1;
+  const sortedRides = rides
+    .filter((r: any) => r.rideStatus !== "completed" && r.rideStatus !== "cancelled")
+    .sort((a: any, b: any) => {
+      const aMine = a.acceptedBy === user?.uid;
+      const bMine = b.acceptedBy === user?.uid;
+      if (aMine && !bMine) return -1;
+      if (!aMine && bMine) return 1;
 
-    if (a.isPriorityPassenger && !b.isPriorityPassenger) return -1;
-    if (!a.isPriorityPassenger && b.isPriorityPassenger) return 1;
+      if (a.isPriorityPassenger && !b.isPriorityPassenger) return -1;
+      if (!a.isPriorityPassenger && b.isPriorityPassenger) return 1;
 
-    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-  });
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+
 
   if (!authResolved) return <div className="page">Initializing Driver Portal...</div>;
 
   if (!user) {
     return (
-      <div className="page page-auth">
-        <section className="auth-shell" style={{ gridTemplateColumns: '1fr', maxWidth: '560px', margin: '0 auto' }}>
-          <section className="auth-card" style={{ padding: '0', overflow: 'hidden' }}>
-            {/* Header */}
-            <div className="staff-header">
-              <div className="staff-header-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-              </div>
-              <p className="eyebrow auth-card-eyebrow" style={{ color: '#a5b8d0' }}>Ride Reserve</p>
-              <h2 style={{ color: '#fff', margin: '4px 0 6px' }}>Staff Portal</h2>
-              <p style={{ color: '#8fa8c8', margin: 0, fontSize: '0.92rem' }}>
-                Secure access for Administrators and Drivers
-              </p>
+      <div className="bg-background font-body-lg text-on-surface antialiased" style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 9999,
+        margin: 0,
+        padding: 0,
+        overflow: 'hidden'
+      }}>
+        <main style={{ height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+          {/* Full Screen Centered Section */}
+          <section style={{ position: 'relative', flex: 1, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
+            {/* Background Concourse Texture */}
+            <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
+              <img alt="Hubballi Junction Station" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} src="/bg_train_new.jpg" />
             </div>
 
-            {/* Form Area */}
-            <div className="staff-form-area">
-              <div className="staff-active-role-badge">
-                <span className="staff-role-dot driver"></span>
-                {isSignup ? 'Creating Driver Account' : 'Logging in as Driver'}
-              </div>
-
-              <form className="auth-form" onSubmit={isSignup ? handleSignup : handleLogin} style={{ marginTop: '16px' }}>
-                {isSignup && (
+            <div style={{ position: 'relative', zIndex: 10, width: '90%', maxWidth: '460px', padding: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              {/* Solid High-Contrast Card with technical tighter corners */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 30px rgba(15, 23, 42, 0.06)',
+                  padding: '40px 36px',
+                  width: '100%',
+                  color: '#0f172a',
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+                }}
+              >
+                {showOtpScreen ? (
                   <>
-                    <label>
-                      Full Name
-                      <input
-                        type="text"
-                        value={authName}
-                        onChange={(e) => setAuthName(e.target.value)}
-                        placeholder="Arjun Sharma"
-                        required
-                      />
-                    </label>
-                    <label>
-                      Aadhar Card Image (JPG)
-                      <input
-                        type="file"
-                        accept="image/jpeg, image/jpg"
-                        onChange={handleAadharUpload}
-                        required={!aadharNumber}
-                      />
-                    </label>
-                    {aadharNumber && (
-                      <label>
-                        Extracted Aadhar Number
+                    <span style={{ fontSize: '0.72rem', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', color: '#ff7700', display: 'block', marginBottom: '6px', textAlign: 'center' }}>
+                      SECURITY CHECK
+                    </span>
+                    <h2 style={{ fontSize: '1.9rem', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '-0.5px', textAlign: 'center' }}>
+                      Verify Email
+                    </h2>
+                    <p style={{ fontSize: '0.85rem', color: '#475569', margin: '0 0 24px 0', lineHeight: '1.4', textAlign: 'center' }}>
+                      We sent a 6-digit verification code to <strong style={{ color: '#0f172a' }}>{verifyingEmail}</strong>. Please enter it below:
+                    </p>
+
+                    <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155', textAlign: 'center', marginBottom: '4px' }}>
+                          Enter 6-Digit OTP
+                        </label>
                         <input
                           type="text"
-                          value={aadharNumber}
-                          onChange={(e) => setAadharNumber(e.target.value)}
-                          placeholder="1234 5678 9012"
+                          maxLength={6}
+                          placeholder="000000"
+                          value={otpValue}
+                          onChange={(e) => setOtpValue(e.target.value.replace(/[^0-9]/g, ''))}
                           required
+                          style={{
+                            width: '100%',
+                            background: '#ffffff',
+                            border: '2px solid #cbd5e1',
+                            borderRadius: '12px',
+                            padding: '14px 16px',
+                            color: '#0f172a',
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            letterSpacing: '12px',
+                            textAlign: 'center',
+                            outline: 'none',
+                            transition: 'all 0.2s',
+                            boxSizing: 'border-box'
+                          }}
                         />
-                      </label>
-                    )}
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={authBusy}
+                        style={{
+                          width: '100%',
+                          padding: '14px 0',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: '#1d4ed8',
+                          color: '#ffffff',
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(29, 78, 216, 0.2)',
+                          transition: 'all 0.2s',
+                          fontFamily: "'Inter', sans-serif"
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; }}
+                      >
+                        {authBusy ? 'Verifying Code...' : 'Verify & Continue'}
+                      </button>
+
+                      {otpStatus && (
+                        <p style={{
+                          textAlign: 'center',
+                          color: otpStatus.includes('sent') ? '#16a34a' : '#dc2626',
+                          fontWeight: 'bold',
+                          margin: '0',
+                          fontSize: '0.88rem',
+                          lineHeight: '1.4'
+                        }}>
+                          {otpStatus}
+                        </p>
+                      )}
+                    </form>
+
+                    <div style={{ textAlign: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                      <p style={{ color: '#64748b', fontSize: '0.85rem', margin: '0 0 16px 0' }}>
+                        Didn't receive a code?{' '}
+                        {countdown > 0 ? (
+                          <span style={{ fontWeight: 'bold', color: '#ff7700' }}>Resend in {countdown}s</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleResendOtp}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#ff7700',
+                              fontWeight: 'bold',
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
+                              padding: 0
+                            }}
+                          >
+                            Resend Code
+                          </button>
+                        )}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowOtpScreen(false);
+                          setOtpValue("");
+                          setOtpStatus("");
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#64748b',
+                          fontSize: '0.88rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Back to Login
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Logo Placeholder */}
+                    <div style={{ height: '56px', margin: '0 auto 16px auto' }} />
+
+                    <h1 style={{ fontSize: '2.1rem', fontWeight: '800', color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.75px', textAlign: 'center', fontFamily: "'Inter', sans-serif" }}>
+                      Hubballi BOV Transit
+                    </h1>
+                    <p style={{ fontSize: '0.95rem', fontWeight: '700', color: '#1d4ed8', margin: '0 0 10px 0', textAlign: 'center', letterSpacing: '0.5px' }}>
+                      Welcome to SSS Hubballi Junction.
+                    </p>
+                    <p style={{ fontSize: '0.88rem', color: '#475569', margin: '0 0 24px 0', lineHeight: '1.5', textAlign: 'center' }}>
+                      Secure staff access for Drivers managing platform passenger transfers.
+                    </p>
+
+                    {/* Main Action Toggle */}
+                    <div style={{
+                      display: 'flex',
+                      background: '#f1f5f9',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '99px',
+                      padding: '3px',
+                      marginBottom: '24px'
+                    }}>
+                      <button
+                        type="button"
+                        onClick={() => { setIsSignup(false); setStatus(""); }}
+                        style={{
+                          flex: 1,
+                          padding: '10px 0',
+                          borderRadius: '99px',
+                          border: 'none',
+                          background: !isSignup ? '#ffffff' : 'transparent',
+                          color: !isSignup ? '#0f172a' : '#64748b',
+                          fontWeight: 'bold',
+                          fontSize: '0.88rem',
+                          cursor: 'pointer',
+                          boxShadow: !isSignup ? '0 2px 6px rgba(15, 23, 42, 0.08)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        Login
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setIsSignup(true); setStatus(""); }}
+                        style={{
+                          flex: 1,
+                          padding: '10px 0',
+                          borderRadius: '99px',
+                          border: 'none',
+                          background: isSignup ? '#ffffff' : 'transparent',
+                          color: isSignup ? '#0f172a' : '#64748b',
+                          fontWeight: 'bold',
+                          fontSize: '0.88rem',
+                          cursor: 'pointer',
+                          boxShadow: isSignup ? '0 2px 6px rgba(15, 23, 42, 0.08)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        Sign up
+                      </button>
+                    </div>
+
+                    {/* Form */}
+                    <form onSubmit={isSignup ? handleSignup : handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {isSignup && (
+                        <>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>Full Name</label>
+                            <input
+                              type="text"
+                              value={authName}
+                              onChange={(e) => setAuthName(e.target.value)}
+                              placeholder="Enter your Full Name"
+                              required
+                              style={{
+                                width: '100%',
+                                background: '#ffffff',
+                                border: '1px solid #cbd5e1',
+                                borderRadius: '12px',
+                                padding: '12px 16px',
+                                color: '#0f172a',
+                                fontSize: '0.95rem',
+                                outline: 'none',
+                                transition: 'all 0.2s',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>Aadhar Card Image (JPG)</label>
+                            <input
+                              type="file"
+                              accept="image/jpeg, image/jpg"
+                              onChange={handleAadharUpload}
+                              required={!aadharNumber}
+                              style={{
+                                width: '100%',
+                                background: '#ffffff',
+                                border: '1px solid #cbd5e1',
+                                borderRadius: '12px',
+                                padding: '12px 16px',
+                                color: '#0f172a',
+                                fontSize: '0.95rem',
+                                outline: 'none',
+                                transition: 'all 0.2s',
+                                boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          {aadharNumber && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>Extracted Aadhar Number</label>
+                              <input
+                                type="text"
+                                value={aadharNumber}
+                                onChange={(e) => setAadharNumber(e.target.value)}
+                                placeholder="1234 5678 9012"
+                                required
+                                style={{
+                                  width: '100%',
+                                  background: '#ffffff',
+                                  border: '1px solid #cbd5e1',
+                                  borderRadius: '12px',
+                                  padding: '12px 16px',
+                                  color: '#0f172a',
+                                  fontSize: '0.95rem',
+                                  outline: 'none',
+                                  transition: 'all 0.2s',
+                                  boxSizing: 'border-box'
+                                }}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>Driver Email</label>
+                        <input
+                          type="email"
+                          value={authEmail}
+                          onChange={(e) => setAuthEmail(e.target.value)}
+                          placeholder="driver@ridereserve.com"
+                          required
+                          style={{
+                            width: '100%',
+                            background: '#ffffff',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: '12px',
+                            padding: '12px 16px',
+                            color: '#0f172a',
+                            fontSize: '0.95rem',
+                            outline: 'none',
+                            transition: 'all 0.2s',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>Password</label>
+                        <input
+                          type="password"
+                          value={authPassword}
+                          onChange={(e) => setAuthPassword(e.target.value)}
+                          placeholder="******"
+                          required
+                          style={{
+                            width: '100%',
+                            background: '#ffffff',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: '12px',
+                            padding: '12px 16px',
+                            color: '#0f172a',
+                            fontSize: '0.95rem',
+                            outline: 'none',
+                            transition: 'all 0.2s',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={authBusy}
+                        style={{
+                          width: '100%',
+                          padding: '14px 0',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: '#1d4ed8',
+                          color: '#ffffff',
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(29, 78, 216, 0.2)',
+                          transition: 'all 0.2s',
+                          marginTop: '8px',
+                          fontFamily: "'Inter', sans-serif"
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; }}
+                      >
+                        {authBusy
+                          ? (isSignup ? 'Creating account...' : 'Authenticating...')
+                          : (isSignup ? 'Create Driver Account' : 'Login as Driver')
+                        }
+                      </button>
+
+                      {status && (
+                        <p style={{
+                          textAlign: 'center',
+                          color: status.includes('successful') || status.includes('created') ? '#16a34a' : '#dc2626',
+                          fontWeight: 'bold',
+                          margin: '8px 0 0 0',
+                          fontSize: '0.85rem'
+                        }}>
+                          {status}
+                        </p>
+                      )}
+                    </form>
+
+                    {/* Informative Alert Box */}
+                    <div style={{
+                      display: 'flex',
+                      gap: '12px',
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '12px 14px',
+                      marginTop: '20px',
+                      fontSize: '0.82rem',
+                      color: '#475569',
+                      lineHeight: '1.4'
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#64748b', marginTop: '2px' }}>
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <span>Driver accounts handle ride status updates and BOV operations.</span>
+                    </div>
+
+                    {/* Back Link */}
+                    <div style={{ textAlign: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                      <a
+                        href="http://localhost:5173"
+                        style={{
+                          color: '#64748b',
+                          fontSize: '0.88rem',
+                          fontWeight: '600',
+                          textDecoration: 'underline',
+                          padding: 0
+                        }}
+                      >
+                        Back to Passenger Booking
+                      </a>
+                    </div>
                   </>
                 )}
-                <label>
-                  Driver Email
-                  <input
-                    type="email"
-                    value={authEmail}
-                    onChange={(e) => setAuthEmail(e.target.value)}
-                    placeholder="driver@ridereserve.com"
-                    required
-                  />
-                </label>
-                <label>
-                  Password
-                  <input
-                    type="password"
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                  />
-                </label>
-
-                <button className="cta auth-submit" type="submit" disabled={authBusy}
-                  style={{ background: 'linear-gradient(135deg, #e65100, #ff6f1d)' }}>
-                  {authBusy
-                    ? (isSignup ? "Creating account..." : "Verifying credentials...")
-                    : (isSignup ? "Create Driver Account" : "Login to Driver Dashboard")
-                  }
-                </button>
-
-                <div style={{ textAlign: 'center', marginTop: '1.2rem' }}>
-                  <button
-                    type="button"
-                    className="link-btn"
-                    style={{ color: '#e65100', fontSize: '0.9rem', fontWeight: 600 }}
-                    onClick={() => { setIsSignup(!isSignup); setStatus(""); }}
-                  >
-                    {isSignup ? "Already have a driver account? Login here" : "New driver? Create an account here"}
-                  </button>
-                </div>
-
-                {status && <p className="status auth-status">{status}</p>}
-              </form>
-
-              <div className="staff-info-box">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="12" y1="16" x2="12" y2="12"/>
-                  <line x1="12" y1="8" x2="12.01" y2="8"/>
-                </svg>
-                <span>Driver accounts handle ride status updates and BOV operations.</span>
               </div>
             </div>
-
-            {/* Footer */}
-            <div className="staff-footer">
-              <p className="auth-footer-note" style={{ margin: 0, textAlign: 'center', fontSize: '0.9rem', color: '#5a6f8c' }}>
-                Not a staff member?{' '}
-                <a href="http://localhost:5173" className="link-btn" style={{ color: '#e65100', fontWeight: '600', textDecoration: 'none' }}>
-                  Back to Passenger Booking
-                </a>
-              </p>
-            </div>
           </section>
-        </section>
+        </main>
       </div>
     );
   }
 
-  const statusClass = (s: RideStatus) => {
-    if (s === "confirmed") return "status-chip confirmed";
-    if (s === "in-progress") return "status-chip progress";
-    if (s === "completed") return "status-chip complete";
-    return "status-chip";
-  };
 
   return (
-    <div className="page">
-      <header className="hero">
-        <p className="eyebrow">SmartBOV</p>
-        <h1>Driver Dashboard</h1>
-        <div className="hero-inline">
-          <span className="hero-tag">{user.email}</span>
-          <span className="hero-tag">Marketplace Active</span>
+    <div className="page" style={{ maxWidth: '1100px', margin: '0 auto', padding: '24px 18px 50px', fontFamily: "'Inter', sans-serif" }}>
+      {/* Cinematic Photographic Header with tighter, technical corner rounding */}
+      <header style={{
+        position: 'relative',
+        backgroundImage: 'linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)), url(/bg_train_new.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        borderRadius: '12px',
+        padding: '32px 28px',
+        color: '#ffffff',
+        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.15)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '20px'
+      }}>
+        <div style={{ zIndex: 10 }}>
+          <p style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.72rem', fontWeight: '800', color: '#60a5fa' }}>
+            Hubballi BOV Transit
+          </p>
+          <h1 style={{ margin: '4px 0 2px 0', fontSize: '1.85rem', fontWeight: '800', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.5px' }}>
+            Driver Command Center
+          </h1>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8', fontWeight: '500' }}>
+            SSS Hubballi Junction • Live Operations
+          </p>
         </div>
-        <div style={{ marginTop: '1rem' }}>
-          <button className="secondary" onClick={handleLogout}>Sign Out</button>
+
+        {/* Premium Direct User Panel with Interactive Dropdown (Strictly Emoji-free) */}
+        <div 
+          id="profile-menu-container" 
+          style={{ 
+            position: 'relative', 
+            display: 'flex', 
+            alignItems: 'center', 
+            zIndex: 100 
+          }}
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowProfileMenu(prev => !prev);
+            }}
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08))',
+              color: '#ffffff',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              fontSize: '0.95rem',
+              fontWeight: '800',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: "'Inter', sans-serif",
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              outline: 'none',
+              userSelect: 'none',
+              backdropFilter: 'blur(8px)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.borderColor = '#ffffff';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'none';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+            }}
+          >
+            {driverInitials}
+          </button>
+
+          {showProfileMenu && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: '12px',
+                width: '290px',
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 1px 1px rgba(0, 0, 0, 0.02)',
+                padding: '20px',
+                zIndex: 1000,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                color: '#0f172a',
+                fontFamily: "'Inter', sans-serif"
+              }}
+            >
+              {/* User Info block */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(29, 78, 216, 0.15))',
+                    color: '#1d4ed8',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.1rem',
+                    fontWeight: '800',
+                    fontFamily: "'Inter', sans-serif",
+                    border: '1px solid rgba(29, 78, 216, 0.1)'
+                  }}
+                >
+                  {driverInitials}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <span 
+                    style={{ 
+                      fontSize: '0.95rem', 
+                      fontWeight: '700', 
+                      color: '#0f172a',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {user?.name || "Driver"}
+                  </span>
+                  <span 
+                    style={{ 
+                      fontSize: '0.78rem', 
+                      color: '#64748b',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {user?.email || "No Email"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Verified Pill */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  color: '#16a34a',
+                  fontSize: '0.78rem',
+                  fontWeight: '600'
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Active Duty</span>
+              </div>
+
+              <div style={{ height: '1px', background: '#e2e8f0' }} />
+
+              {/* BOV Assignment Info Card */}
+              <div style={{
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '10px',
+                padding: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Assigned Vehicle
+                </span>
+                {driverBov ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontWeight: '600' }}>{driverBov.vehicleNumber}</span>
+                      <span style={{ 
+                        fontSize: '0.7rem', 
+                        fontWeight: '700', 
+                        color: driverBov.status === 'active' ? '#16a34a' : '#b45309',
+                        textTransform: 'uppercase'
+                      }}>
+                        {driverBov.status}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                      Capacity: {driverBov.totalSeats} Seats
+                    </div>
+                  </div>
+                ) : (
+                  <span style={{ fontSize: '0.78rem', color: '#b45309', fontWeight: '600' }}>
+                    Pending Vehicle Assignment
+                  </span>
+                )}
+              </div>
+
+              {/* Shift Stats Card */}
+              <div style={{
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '10px',
+                padding: '12px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: '600', color: '#334155' }}>
+                  Shift Progress
+                </span>
+                <span style={{ fontSize: '0.82rem', fontWeight: '800', color: '#1d4ed8', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '3px 8px', borderRadius: '6px' }}>
+                  {rides.filter((r: any) => r.acceptedBy === user?.uid && r.rideStatus === 'completed').length} Rides
+                </span>
+              </div>
+
+              <div style={{ height: '1px', background: '#e2e8f0' }} />
+
+              {/* Sign out button */}
+              <button
+                onClick={async () => {
+                  setShowProfileMenu(false);
+                  handleLogout();
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  background: 'rgba(239, 68, 68, 0.06)',
+                  color: '#dc2626',
+                  fontSize: '0.88rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  fontFamily: "'Inter', sans-serif"
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.06)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
-      <div className="cards">
-        <article className="metric"><h2>{sortedRides.filter((r: any) => r.acceptedBy === user.uid).length}</h2><p>My Active Rides</p></article>
-        <article className="metric"><h2>{sortedRides.filter((r: any) => r.rideStatus === "pending").length}</h2><p>Available in Market</p></article>
+      {/* Quick Stats Metric Cards with technical label-style curves */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginTop: '24px' }}>
+        <article style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          padding: '20px 24px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 12px rgba(15, 23, 42, 0.03)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          transition: 'all 0.25s'
+        }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'Inter', sans-serif" }}>
+              Active Rides
+            </p>
+            <h2 style={{ margin: '4px 0 0 0', fontSize: '1.9rem', color: '#0f172a', fontWeight: '800', fontFamily: "'Inter', sans-serif", textShadow: '0 2px 4px rgba(15, 23, 42, 0.08)' }}>
+              {sortedRides.filter((r: any) => r.acceptedBy === user.uid && r.rideStatus !== 'completed' && r.rideStatus !== 'cancelled').length}
+            </h2>
+          </div>
+          <div style={{ background: '#eff6ff', borderRadius: '8px', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+        </article>
+
+        <article style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          padding: '20px 24px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 12px rgba(15, 23, 42, 0.03)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          transition: 'all 0.25s'
+        }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'Inter', sans-serif" }}>
+              Pending Requests
+            </p>
+            <h2 style={{ margin: '4px 0 0 0', fontSize: '1.9rem', color: '#0f172a', fontWeight: '800', fontFamily: "'Inter', sans-serif", textShadow: '0 2px 4px rgba(15, 23, 42, 0.08)' }}>
+              {sortedRides.filter((r: any) => r.rideStatus === "pending").length}
+            </h2>
+          </div>
+          <div style={{ background: '#fffbeb', borderRadius: '8px', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+        </article>
       </div>
 
-      <section className="table-card">
-        <h2>Ride Queue</h2>
-        {ridesError && <p className="status error" style={{ color: '#ff4d4f' }}>Error loading rides: {ridesError}</p>}
-        {ridesLoading ? <p>Loading rides...</p> : (
-          <table>
-            <thead><tr><th>ID</th><th>Passenger</th><th>Route</th><th>Seats</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody>
-              {sortedRides.map((r: any) => (
-                <tr key={r.bookingId} style={r.isPriorityPassenger && r.rideStatus === 'pending' ? {
-                  background: 'rgba(211, 47, 47, 0.08)',
-                  boxShadow: 'inset 4px 0 0 #d32f2f'
-                } : {}}>
-                  <td>{r.bookingId}</td>
-                  <td>
-                    {r.passengerName}
-                    {r.isPriorityPassenger && (
-                      <span className="priority-badge" style={{
-                        background: 'linear-gradient(135deg, #d32f2f, #f44336)',
-                        color: 'white',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontSize: '0.72rem',
-                        fontWeight: 'bold',
-                        marginLeft: '8px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        boxShadow: '0 2px 6px rgba(211, 47, 47, 0.3)'
-                      }}>
-                        ♿ PRIORITY
+      {/* Ride Queue Job Cards Section */}
+      <section style={{ marginTop: '32px' }}>
+        <h2 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#0f172a', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          Operations Queue
+          <span style={{ fontSize: '0.8rem', fontWeight: '700', background: '#e2e8f0', color: '#475569', padding: '2px 6px', borderRadius: '4px' }}>
+            {sortedRides.length} Total
+          </span>
+        </h2>
+
+        {ridesError && <p className="status error" style={{ color: '#ff4d4f', background: '#fef2f2', border: '1px solid #fca5a5', padding: '12px', borderRadius: '12px' }}>Error loading rides: {ridesError}</p>}
+
+        {ridesLoading ? (
+          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading operations...</p>
+        ) : sortedRides.length === 0 ? (
+          <div style={{ background: '#ffffff', borderRadius: '12px', padding: '40px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
+            No operations in the queue.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {sortedRides.map((r: any) => {
+              const isMine = r.acceptedBy === user.uid;
+              const isPending = r.rideStatus === "pending";
+              const isConfirmed = r.rideStatus === "confirmed";
+              const isInProgress = r.rideStatus === "in-progress";
+              const isCompleted = r.rideStatus === "completed" || r.rideStatus === "cancelled";
+
+              return (
+                <article
+                  key={r.bookingId}
+                  style={{
+                    background: isCompleted ? '#f8fafc' : '#ffffff',
+                    opacity: isCompleted ? 0.65 : 1,
+                    borderRadius: '12px',
+                    padding: '20px 24px',
+                    border: '1.5px solid ' + (isCompleted ? '#e2e8f0' : isMine ? '#bfdbfe' : '#e2e8f0'),
+                    boxShadow: isCompleted ? 'none' : isMine ? '0 6px 15px -3px rgba(29, 78, 216, 0.04)' : '0 4px 12px -3px rgba(15, 23, 42, 0.03)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '20px',
+                    transition: 'all 0.15s ease',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {/* Left accent color indicator for pending priority requests (muted orange/amber highlight) */}
+                  {r.isPriorityPassenger && !isCompleted && (
+                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: 'linear-gradient(to bottom, #f59e0b, #d97706)' }} />
+                  )}
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, minWidth: '280px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', background: '#f1f5f9', padding: '3px 8px', borderRadius: '6px' }}>
+                        ID: {formatBookingId(r.bookingId)}
                       </span>
-                    )}
-                    {r.isSharedRide && (
-                      <span className="shared-badge" style={{
-                        background: 'linear-gradient(135deg, #0288d1, #03a9f4)',
-                        color: 'white',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontSize: '0.72rem',
-                        fontWeight: 'bold',
-                        marginLeft: '8px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        boxShadow: '0 2px 6px rgba(2, 136, 209, 0.3)'
+
+                      {r.isPriorityPassenger && (
+                        <span className="priority-badge" style={{
+                          background: '#fffbeb',
+                          color: '#b45309',
+                          border: '1px solid #fde68a',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.7rem',
+                          fontWeight: '700',
+                          display: 'inline-flex',
+                          alignItems: 'center'
+                        }}>
+                          PRIORITY
+                        </span>
+                      )}
+
+                      {r.isSharedRide && (
+                        <span className="shared-badge" style={{
+                          background: '#f0f9ff',
+                          color: '#0369a1',
+                          border: '1px solid #bae6fd',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.7rem',
+                          fontWeight: '700',
+                          display: 'inline-flex',
+                          alignItems: 'center'
+                        }}>
+                          SHARED
+                        </span>
+                      )}
+
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid ' + (isPending ? '#fde68a' : isConfirmed ? '#bfdbfe' : isInProgress ? '#bae6fd' : '#e2e8f0'),
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        background: isPending ? '#fffbeb' : isConfirmed ? '#eff6ff' : isInProgress ? '#f0f9ff' : '#f1f5f9',
+                        color: isPending ? '#d97706' : isConfirmed ? '#1e40af' : isInProgress ? '#0369a1' : '#64748b'
                       }}>
-                        👥 SHARED
+                        {r.rideStatus}
                       </span>
-                    )}
-                  </td>
-                  <td>{r.fromPlatform} → {r.toPlatform}</td>
-                  <td>{r.seats}</td>
-                  <td><span className={statusClass(r.rideStatus)}>{r.rideStatus}</span></td>
-                  <td className="actions">
-                    {r.rideStatus === "pending" ? (
-                      <button className="action-start" onClick={() => acceptRide(r.bookingId)}>Accept</button>
-                    ) : r.rideStatus === "confirmed" ? (
-                      <button className="action-start" onClick={() => updateStatus(r.bookingId, "in-progress")}>Start</button>
-                    ) : r.rideStatus === "in-progress" ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <select 
-                          onChange={(e) => handleLocationChange(r.bookingId, e.target.value)}
-                          defaultValue=""
-                          style={{ padding: '6px', fontSize: '0.82rem', borderRadius: '4px', border: '1px solid #ff6f1d', background: '#fff3e0', color: '#e65100', fontWeight: 'bold' }}
+                    </div>
+
+                    {/* Route is the largest, most prominent text on each card */}
+                    <h3 style={{ margin: '6px 0 0 0', fontSize: '1.25rem', fontWeight: '800', color: isCompleted ? '#64748b' : '#0f172a', letterSpacing: '-0.3px', fontFamily: "'Inter', sans-serif" }}>
+                      {r.fromPlatform} → {r.toPlatform}
+                    </h3>
+
+                    {/* Passenger details below route */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.85rem', color: isCompleted ? '#94a3b8' : '#475569', marginTop: '2px', flexWrap: 'wrap', fontFamily: "'Inter', sans-serif" }}>
+                      <span>Passenger: <strong style={{ color: isCompleted ? '#64748b' : '#0f172a' }}>{r.passengerName}</strong></span>
+                      <span style={{ width: '4px', height: '4px', background: '#cbd5e1', borderRadius: '50%' }}></span>
+                      <span>Seats: <strong style={{ color: isCompleted ? '#64748b' : '#0f172a' }}>{r.seats} Seat(s)</strong></span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '180px', justifyContent: 'flex-end' }}>
+                    {isPending ? (
+                      <button
+                        onClick={() => acceptRide(r.bookingId)}
+                        style={{
+                          background: 'transparent',
+                          border: '1.5px solid #1d4ed8',
+                          color: '#1d4ed8',
+                          padding: '10px 20px',
+                          borderRadius: '8px',
+                          fontWeight: '700',
+                          fontSize: '0.88rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s',
+                          width: '100%',
+                          fontFamily: "'Inter', sans-serif"
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = '#eff6ff';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        Accept
+                      </button>
+                    ) : isConfirmed ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                        <input
+                          type="text"
+                          maxLength={4}
+                          placeholder="Enter PIN"
+                          value={pins[r.bookingId] || ""}
+                          onChange={(e) => setPins(prev => ({ ...prev, [r.bookingId]: e.target.value.replace(/[^0-9]/g, '') }))}
+                          style={{
+                            width: '90px',
+                            padding: '10px 8px',
+                            border: '1.5px solid #cbd5e1',
+                            borderRadius: '8px',
+                            fontSize: '0.9rem',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            outline: 'none',
+                            fontFamily: 'monospace',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                        <button
+                          onClick={() => startRideWithPin(r.bookingId, pins[r.bookingId] || "")}
+                          style={{
+                            background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                            border: 'none',
+                            color: '#ffffff',
+                            padding: '12px 20px',
+                            borderRadius: '8px',
+                            fontWeight: '700',
+                            fontSize: '0.92rem',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.2)',
+                            transition: 'all 0.15s',
+                            flex: 1,
+                            fontFamily: "'Inter', sans-serif"
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'none';
+                          }}
                         >
-                          <option value="" disabled>📍 Stream Platform...</option>
-                          <option value="Entrance">Entrance</option>
-                          <option value="Platform 1">Platform 1</option>
-                          <option value="Platform 2">Platform 2</option>
-                          <option value="Platform 3">Platform 3</option>
-                          <option value="Platform 4">Platform 4</option>
-                          <option value="Platform 5">Platform 5</option>
-                          <option value="Arrived">Arrived</option>
-                        </select>
-                        <div style={{ display: 'flex', gap: '4px' }}>
-                          <button className="action-complete" onClick={() => updateStatus(r.bookingId, "completed")} style={{ flex: 1 }}>Complete</button>
-                          <button 
-                            onClick={() => triggerDriverSos(r.bookingId, r.passengerName, r.fromPlatform)}
-                            style={{
-                              background: 'linear-gradient(135deg, #d32f2f, #c62828)',
-                              color: 'white',
-                              border: 'none',
-                              padding: '6px 10px',
-                              borderRadius: '9px',
-                              cursor: 'pointer',
-                              fontWeight: 'bold',
-                              fontSize: '0.82rem'
-                            }}
-                          >
-                            🚨 SOS
-                          </button>
-                        </div>
+                          Start
+                        </button>
                       </div>
+                    ) : isInProgress ? (
+                      <button
+                        onClick={() => updateStatus(r.bookingId, "completed")}
+                        style={{
+                          background: '#1d4ed8',
+                          border: 'none',
+                          color: '#ffffff',
+                          padding: '14px 28px',
+                          borderRadius: '8px',
+                          fontWeight: '700',
+                          fontSize: '0.95rem',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(29, 78, 216, 0.2)',
+                          transition: 'all 0.15s',
+                          width: '100%',
+                          fontFamily: "'Inter', sans-serif"
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = 'none';
+                        }}
+                      >
+                        Complete Ride
+                      </button>
                     ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         )}
       </section>
-      {status && <p className="status">{status}</p>}
+
+      {status && (
+        <p style={{
+          marginTop: '20px',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          background: status.includes('Error') ? '#fef2f2' : '#f0fdf4',
+          border: '1px solid ' + (status.includes('Error') ? '#fca5a5' : '#bbf7d0'),
+          color: status.includes('Error') ? '#b91c1c' : '#166534',
+          fontWeight: 'bold',
+          fontSize: '0.88rem',
+          textAlign: 'center',
+          fontFamily: "'Inter', sans-serif"
+        }}>
+          {stripEmojis(status)}
+        </p>
+      )}
     </div>
   );
 }

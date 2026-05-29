@@ -54,8 +54,8 @@ export function useAuth() {
       setSessionReady(true);
       setStatus("Login successful.");
       return profile;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : "Authentication failed.";
+    } catch (error: any) {
+      const msg = error.response?.data?.error || error.message || "Authentication failed.";
       setStatus(msg);
       throw error;
     } finally {
@@ -67,13 +67,17 @@ export function useAuth() {
     setBusy(true);
     setStatus("Creating account...");
     try {
-      const profile = await signUpPassenger(input);
-      setPassengerProfile(profile);
+      const result = await signUpPassenger(input);
+      if (result && result.message === 'otp_sent') {
+        setStatus("Verification code sent to your email.");
+        return result;
+      }
+      setPassengerProfile(result);
       setSessionReady(true);
       setStatus("Account created successfully.");
-      return profile;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : "Signup failed.";
+      return result;
+    } catch (error: any) {
+      const msg = error.response?.data?.error || error.message || "Signup failed.";
       setStatus(msg);
       throw error;
     } finally {

@@ -12,3 +12,13 @@ Thumbs.db
 
 # Security keys
 service-account*.json
+
+# Scratch and recovered files
+recovered_*.txt
+step_*_replacement.txt
+restored_App.tsx
+
+# Local database tests / scratch scripts
+apps/server/delete-user.js
+apps/server/src/test-conn.ts
+apps/server/src/find-users.*
