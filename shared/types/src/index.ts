@@ -102,6 +102,7 @@ export interface BookingCreateInput {
   trainNumber: string;
   seats: number;
   toPlatform: string;
+  fromPlatform?: string;
   journeyType: JourneyType;
   pickupPoint?: string;
   lightLuggageCount: number;

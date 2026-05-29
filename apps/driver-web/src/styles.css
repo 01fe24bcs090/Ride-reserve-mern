@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "../../../shared/styles/core.css";
 
 * {
@@ -6,10 +7,9 @@
 
 body {
   margin: 0;
-  font-family: "Noto Sans", sans-serif;
-  background:
-    radial-gradient(900px 350px at 102% -18%, #bed8ff 0%, transparent 70%),
-    linear-gradient(180deg, #ecf3fc 0%, var(--off-white) 100%);
+  padding: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0b0f19;
 }
 
 .page {
@@ -41,7 +41,7 @@ body {
 
 .hero h1 {
   margin: 6px 0;
-  font-family: "Sora", "Noto Sans", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .eyebrow {
@@ -85,7 +85,7 @@ body {
 .cards h2 {
   margin: 0;
   color: var(--railway-blue);
-  font-family: "Sora", "Noto Sans", sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 1.45rem;
 }
 
@@ -106,7 +106,7 @@ body {
 .table-card h2 {
   margin-top: 0;
   color: var(--railway-blue);
-  font-family: "Sora", "Noto Sans", sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 1.06rem;
 }
 
@@ -125,7 +125,7 @@ td {
 
 th {
   color: #294366;
-  font-family: "Sora", "Noto Sans", sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 0.8rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;

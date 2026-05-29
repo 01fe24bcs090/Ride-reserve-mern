@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { JourneyType, LuggageType, RideStatus } from '@ride-reserve/types';
+import { JourneyType, RideStatus } from '@ride-reserve/types';
 
 export interface IBooking extends Document {
   bookingId: string;
@@ -27,6 +27,7 @@ export interface IBooking extends Document {
   acceptedBy: string | null;
   isSharedRide: boolean;
   sharedPoolId: string;
+  startPin: string;
 }
 
 const BookingSchema: Schema = new Schema(
@@ -60,6 +61,7 @@ const BookingSchema: Schema = new Schema(
     acceptedBy: { type: String, default: null },
     isSharedRide: { type: Boolean, default: false },
     sharedPoolId: { type: String, default: '' },
+    startPin: { type: String, default: '' },
   },
   { timestamps: true }
 );

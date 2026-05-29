@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "../../../shared/styles/core.css";
 
 * {
@@ -6,12 +7,21 @@
 
 body {
   margin: 0;
-  font-family: "Noto Sans", sans-serif;
-  color: var(--text-primary);
-  background:
-    radial-gradient(980px 410px at -8% -22%, #d6e7ff 0%, transparent 65%),
-    radial-gradient(900px 340px at 104% -16%, #c6dcfb 0%, transparent 66%),
-    linear-gradient(180deg, #eff5fd 0%, var(--off-white) 100%);
+  padding: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .page {

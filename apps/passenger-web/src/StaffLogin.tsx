@@ -87,153 +87,315 @@ export default function StaffLogin() {
   const isAdmin = activeTab === "admin";
 
   return (
-    <div className="page page-auth">
-      <section className="auth-shell" style={{ gridTemplateColumns: '1fr', maxWidth: '560px', margin: '0 auto' }}>
-        <section className="auth-card" style={{ padding: '0', overflow: 'hidden' }}>
-          {/* Header */}
-          <div className="staff-header">
-            <div className="staff-header-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              </svg>
-            </div>
-            <p className="eyebrow auth-card-eyebrow" style={{ color: '#a5b8d0' }}>Ride Reserve</p>
-            <h2 style={{ color: '#fff', margin: '4px 0 6px' }}>Staff Portal</h2>
-            <p style={{ color: '#8fa8c8', margin: 0, fontSize: '0.92rem' }}>
-              Secure access for Administrators and Drivers
-            </p>
+    <div className="page page-auth bg-background font-body-lg text-on-surface antialiased">
+      <main>
+        {/* Full Screen Centered Glassmorphism Section */}
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0 z-0">
+            <img alt="Hubballi Junction Station" className="w-full h-full object-cover" src="/bg_train_new.jpg" />
           </div>
 
-          {/* Role Tabs */}
-          <div className="staff-role-tabs">
-            <button
-              type="button"
-              className={`staff-role-tab ${isAdmin ? 'active' : ''}`}
-              onClick={() => { setActiveTab("admin"); setStatus(""); }}
+          <div className="relative z-10 w-full p-4 flex justify-center items-center">
+            {/* Solid High-Contrast Card */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '24px',
+                boxShadow: '0 20px 50px rgba(15, 23, 42, 0.15)',
+                padding: '40px 36px',
+                width: '100%',
+                maxWidth: '460px',
+                color: '#0f172a',
+                fontFamily: "'Plus Jakarta Sans', sans-serif"
+              }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="7" height="7"/>
-                <rect x="14" y="3" width="7" height="7"/>
-                <rect x="14" y="14" width="7" height="7"/>
-                <rect x="3" y="14" width="7" height="7"/>
-              </svg>
-              <span>Admin</span>
-              <small>System management</small>
-            </button>
-            <button
-              type="button"
-              className={`staff-role-tab ${!isAdmin ? 'active' : ''}`}
-              onClick={() => { setActiveTab("driver"); setStatus(""); setIsSignup(false); }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
-              </svg>
-              <span>Driver</span>
-              <small>BOV ride operations</small>
-            </button>
-          </div>
+              {/* Logo Placeholder */}
+              <div style={{ height: '56px', margin: '0 auto 16px auto' }} />
 
-          {/* Form */}
-          <div className="staff-form-area">
-            <div className="staff-active-role-badge">
-              <span className={`staff-role-dot ${isAdmin ? 'admin' : 'driver'}`}></span>
-              {isSignup ? 'Creating Driver Account' : `Logging in as ${isAdmin ? 'Administrator' : 'Driver'}`}
-            </div>
+              <h1 style={{ fontSize: '2.1rem', fontWeight: '800', color: '#0f172a', margin: '0 0 4px 0', letterSpacing: '-0.75px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                Hubballi BOV Transit
+              </h1>
+              <p style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ff7700', margin: '0 0 10px 0', textAlign: 'center', letterSpacing: '0.5px' }}>
+                Welcome to SSS Hubballi Junction.
+              </p>
+              <p style={{ fontSize: '0.88rem', color: '#475569', margin: '0 0 24px 0', lineHeight: '1.5', textAlign: 'center' }}>
+                Secure staff access for Administrators and Drivers managing BOV operations.
+              </p>
 
-            <form className="auth-form" onSubmit={isSignup ? handleSignup : handleLogin} style={{ marginTop: '16px' }}>
-              {isSignup && (
-                <label>
-                  Full Name
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Arjun Sharma"
-                    required
-                  />
-                </label>
-              )}
-              <label>
-                {isAdmin ? 'Admin' : 'Driver'} Email
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={isAdmin ? "admin@ridereserve.com" : "driver@ridereserve.com"}
-                  required
-                />
-              </label>
-              <label>
-                Password
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                />
-              </label>
+              {/* Main Role Toggle */}
+              <div style={{
+                display: 'flex',
+                background: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+                borderRadius: '99px',
+                padding: '3px',
+                marginBottom: '20px'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab("admin"); setStatus(""); }}
+                  style={{
+                    flex: 1,
+                    padding: '10px 0',
+                    borderRadius: '99px',
+                    border: 'none',
+                    background: isAdmin ? '#ffffff' : 'transparent',
+                    color: isAdmin ? '#0f172a' : '#64748b',
+                    fontWeight: 'bold',
+                    fontSize: '0.88rem',
+                    cursor: 'pointer',
+                    boxShadow: isAdmin ? '0 2px 6px rgba(15, 23, 42, 0.08)' : 'none',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  🔧 Admin Portal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab("driver"); setStatus(""); setIsSignup(false); }}
+                  style={{
+                    flex: 1,
+                    padding: '10px 0',
+                    borderRadius: '99px',
+                    border: 'none',
+                    background: !isAdmin ? '#ffffff' : 'transparent',
+                    color: !isAdmin ? '#0f172a' : '#64748b',
+                    fontWeight: 'bold',
+                    fontSize: '0.88rem',
+                    cursor: 'pointer',
+                    boxShadow: !isAdmin ? '0 2px 6px rgba(15, 23, 42, 0.08)' : 'none',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  🚗 Driver Portal
+                </button>
+              </div>
 
-              <button className="cta auth-submit" type="submit" disabled={busy}
-                style={{
-                  background: isAdmin
-                    ? 'linear-gradient(135deg, #1a3a6b, #2d6cb5)'
-                    : 'linear-gradient(135deg, #e65100, #ff6f1d)',
-                  boxShadow: isAdmin 
-                    ? '0 7px 16px rgba(26, 58, 107, 0.28)' 
-                    : undefined
-                }}>
-                {busy
-                  ? (isSignup ? "Creating account..." : "Verifying credentials...")
-                  : (isSignup 
-                      ? "Create Driver Account" 
-                      : (isAdmin ? "Login to Admin Dashboard" : "Login to Driver Dashboard"))
-                }
-              </button>
-
+              {/* Secondary Driver SignUp/LogIn Toggle */}
               {!isAdmin && (
-                <div style={{ textAlign: 'center', marginTop: '1.2rem' }}>
+                <div style={{
+                  display: 'flex',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '99px',
+                  padding: '2px',
+                  marginBottom: '20px',
+                  maxWidth: '240px',
+                  margin: '0 auto 20px auto'
+                }}>
                   <button
                     type="button"
-                    className="link-btn"
-                    style={{ color: '#e65100', fontSize: '0.9rem', fontWeight: 600 }}
-                    onClick={() => { setIsSignup(!isSignup); setStatus(""); }}
+                    onClick={() => { setIsSignup(false); setStatus(""); }}
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      borderRadius: '99px',
+                      border: 'none',
+                      background: !isSignup ? '#ffffff' : 'transparent',
+                      color: !isSignup ? '#0f172a' : '#64748b',
+                      fontWeight: 'bold',
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      boxShadow: !isSignup ? '0 1px 4px rgba(15, 23, 42, 0.05)' : 'none',
+                      transition: 'all 0.15s'
+                    }}
                   >
-                    {isSignup ? "Already have a driver account? Login here" : "New driver? Create an account here"}
+                    Login
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setIsSignup(true); setStatus(""); }}
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      borderRadius: '99px',
+                      border: 'none',
+                      background: isSignup ? '#ffffff' : 'transparent',
+                      color: isSignup ? '#0f172a' : '#64748b',
+                      fontWeight: 'bold',
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      boxShadow: isSignup ? '0 1px 4px rgba(15, 23, 42, 0.05)' : 'none',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    Sign up
                   </button>
                 </div>
               )}
 
-              {status && <p className="status auth-status">{status}</p>}
-            </form>
+              {/* Form */}
+              <form onSubmit={isSignup ? handleSignup : handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {isSignup && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>Full Name</label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your Full Name"
+                      required
+                      style={{
+                        width: '100%',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        color: '#0f172a',
+                        fontSize: '0.95rem',
+                        outline: 'none',
+                        transition: 'all 0.2s',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                )}
 
-            <div className="staff-info-box">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="16" x2="12" y2="12"/>
-                <line x1="12" y1="8" x2="12.01" y2="8"/>
-              </svg>
-              <span>
-                {isAdmin
-                  ? "Admin accounts manage BOVs, trains, bookings, peak hours, and analytics."
-                  : "Driver accounts handle ride status updates and BOV operations."
-                }
-              </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>
+                    {isAdmin ? 'Admin' : 'Driver'} Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={isAdmin ? "Enter Admin Email" : "Enter Driver Email"}
+                    required
+                    style={{
+                      width: '100%',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      color: '#0f172a',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      transition: 'all 0.2s',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>Password</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="******"
+                    required
+                    style={{
+                      width: '100%',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      color: '#0f172a',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      transition: 'all 0.2s',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={busy}
+                  style={{
+                    width: '100%',
+                    padding: '14px 0',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: isAdmin
+                      ? 'linear-gradient(135deg, #1e3a8a, #2563eb)'
+                      : 'linear-gradient(135deg, #ff7700, #fe7200)',
+                    color: '#ffffff',
+                    fontWeight: 'bold',
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    boxShadow: isAdmin
+                      ? '0 8px 24px -4px rgba(30, 58, 138, 0.4)'
+                      : '0 8px 24px -4px rgba(131, 79, 36, 0.4)',
+                    transition: 'all 0.2s',
+                    marginTop: '8px'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; }}
+                >
+                  {busy
+                    ? (isSignup ? 'Creating account...' : 'Authenticating...')
+                    : (isSignup 
+                        ? 'Create Driver Account' 
+                        : (isAdmin ? 'Login as Administrator' : 'Login as Driver'))
+                  }
+                </button>
+
+                {status && (
+                  <p style={{
+                    textAlign: 'center',
+                    color: status.includes('successful') || status.includes('created') ? '#16a34a' : '#dc2626',
+                    fontWeight: 'bold',
+                    margin: '8px 0 0 0',
+                    fontSize: '0.85rem'
+                  }}>
+                    {status}
+                  </p>
+                )}
+              </form>
+
+              {/* Informative Alert Box */}
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                marginTop: '20px',
+                fontSize: '0.82rem',
+                color: '#475569',
+                lineHeight: '1.4'
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#64748b', marginTop: '2px' }}>
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="16" x2="12" y2="12"/>
+                  <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span>
+                  {isAdmin
+                    ? "Admin accounts manage BOVs, trains, bookings, peak hours, and analytics."
+                    : "Driver accounts handle ride status updates and BOV operations."
+                  }
+                </span>
+              </div>
+
+              {/* Back Link */}
+              <div style={{ textAlign: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                <button
+                  type="button"
+                  onClick={() => window.location.href = '/'}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#64748b',
+                    fontSize: '0.88rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    padding: 0
+                  }}
+                >
+                  Back to Passenger Booking
+                </button>
+              </div>
+
             </div>
           </div>
-
-          {/* Footer */}
-          <div className="staff-footer">
-            <p className="auth-footer-note" style={{ margin: 0 }}>
-              Not a staff member?{' '}
-              <button type="button" className="link-btn" onClick={() => window.location.href = '/'}>
-                Back to Passenger Booking
-              </button>
-            </p>
-          </div>
         </section>
-      </section>
+      </main>
     </div>
   );
 }

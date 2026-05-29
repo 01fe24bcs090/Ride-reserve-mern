@@ -14,6 +14,7 @@ export interface IUser extends Document {
   fcmToken: string | null;
   active: boolean;
   lastLoginAt: Date | null;
+  emailVerified: boolean;
 }
 
 const UserSchema: Schema = new Schema(
@@ -30,8 +31,10 @@ const UserSchema: Schema = new Schema(
     fcmToken: { type: String, default: null },
     active: { type: Boolean, default: true },
     lastLoginAt: { type: Date, default: null },
+    emailVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
 export default mongoose.model<IUser>('User', UserSchema);
+
