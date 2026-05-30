@@ -23,7 +23,7 @@ const importTrains = async () => {
     
     fs.createReadStream(csvPath)
       .pipe(csv())
-      .on('data', (data) => {
+      .on('data', (data: any) => {
         if (data['Train Number']) {
            const typeStr = (data['Type'] || '').toLowerCase();
            let trainType = 'arriving';

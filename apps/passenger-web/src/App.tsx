@@ -140,6 +140,10 @@ export default function App() {
 
   const selectedRoleOption = roleOptions.find((role) => role.value === selectedRole)!;
   const isPassengerRole = selectedRole === "passenger";
+  
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const driverPortalUrl = import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-driver.web.app");
+  const adminPortalUrl = import.meta.env.VITE_ADMIN_URL || (isLocal ? "http://localhost:5175" : "https://ride-reserve-admin.web.app");
   // Removed derived fromPlatform, using state instead
 
   const [activeLocations, setActiveLocations] = useState<Record<string, string>>({});
@@ -356,9 +360,9 @@ export default function App() {
     event.preventDefault();
     if (!isPassengerRole) {
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-      const targetUrl = isLocal
-        ? (selectedRole === 'driver' ? "http://localhost:5174" : "http://localhost:5175")
-        : (selectedRole === 'driver' ? "https://ride-reserve-driver.web.app" : "https://ride-reserve-admin.web.app");
+      const targetUrl = selectedRole === 'driver'
+        ? (import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-driver.web.app"))
+        : (import.meta.env.VITE_ADMIN_URL || (isLocal ? "http://localhost:5175" : "https://ride-reserve-admin.web.app"));
 
       if (targetUrl) {
         setAuthStatus(`Redirecting to ${selectedRoleOption.label} portal...`);
@@ -845,7 +849,7 @@ export default function App() {
 
                       <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                         <a
-                          href="http://localhost:5174"
+                          href={driverPortalUrl}
                           style={{
                             flex: 1,
                             padding: '10px 14px',
@@ -872,7 +876,7 @@ export default function App() {
                           Driver Portal
                         </a>
                         <a
-                          href="http://localhost:5175"
+                          href={adminPortalUrl}
                           style={{
                             flex: 1,
                             padding: '10px 14px',
