@@ -142,8 +142,8 @@ export default function App() {
   const isPassengerRole = selectedRole === "passenger";
   
   const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-  const driverPortalUrl = import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-driver.web.app");
-  const adminPortalUrl = import.meta.env.VITE_ADMIN_URL || (isLocal ? "http://localhost:5175" : "https://ride-reserve-admin.web.app");
+  const driverPortalUrl = import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-mern-driver-web.vercel.app/");
+  const adminPortalUrl = import.meta.env.VITE_ADMIN_URL || (isLocal ? "http://localhost:5175" : "https://ride-reserve-mern-admin-web.vercel.app/");
   // Removed derived fromPlatform, using state instead
 
   const [activeLocations, setActiveLocations] = useState<Record<string, string>>({});
@@ -361,8 +361,8 @@ export default function App() {
     if (!isPassengerRole) {
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
       const targetUrl = selectedRole === 'driver'
-        ? (import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-driver.web.app"))
-        : (import.meta.env.VITE_ADMIN_URL || (isLocal ? "http://localhost:5175" : "https://ride-reserve-admin.web.app"));
+        ? (import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-mern-driver-web.vercel.app/"))
+        : (import.meta.env.VITE_ADMIN_URL || (isLocal ? "http://localhost:5175" : "https://ride-reserve-mern-admin-web.vercel.app/"));
 
       if (targetUrl) {
         setAuthStatus(`Redirecting to ${selectedRoleOption.label} portal...`);

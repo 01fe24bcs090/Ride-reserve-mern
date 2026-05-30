@@ -785,7 +785,7 @@ export default function App() {
                     {/* Back Link */}
                     <div style={{ textAlign: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
                       <a
-                        href="http://localhost:5173"
+                        href="https://ride-reserve-mern-passenger-web.vercel.app/"
                         style={{
                           color: '#64748b',
                           fontSize: '0.88rem',

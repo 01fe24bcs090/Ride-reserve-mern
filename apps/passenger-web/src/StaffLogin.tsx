@@ -33,8 +33,8 @@ export default function StaffLogin() {
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
       const targetMap: Record<string, string> = {
-        admin: import.meta.env.VITE_ADMIN_URL || (isLocal ? "http://localhost:5175" : "https://ride-reserve-admin.web.app"),
-        driver: import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-driver.web.app"),
+        admin: import.meta.env.VITE_ADMIN_URL || (isLocal ? "http://localhost:5175" : "https://ride-reserve-mern-admin-web.vercel.app/"),
+        driver: import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-mern-driver-web.vercel.app/"),
       };
 
       const targetUrl = `${targetMap[activeTab]}?e=${encodeURIComponent(email)}&p=${encodeURIComponent(password)}`;
@@ -70,7 +70,7 @@ export default function StaffLogin() {
       setStatus("Driver account created successfully! Redirecting...");
       
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-      const targetUrl = import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-driver.web.app");
+      const targetUrl = import.meta.env.VITE_DRIVER_URL || (isLocal ? "http://localhost:5174" : "https://ride-reserve-mern-driver-web.vercel.app/");
       
       const redirectUrl = `${targetUrl}?e=${encodeURIComponent(email)}&p=${encodeURIComponent(password)}`;
       setTimeout(() => {
