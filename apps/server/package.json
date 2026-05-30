@@ -2,10 +2,10 @@
   "name": "@ride-reserve/server",
   "version": "1.0.0",
   "description": "Express + MongoDB Backend for Ride Reserve",
-  "main": "dist/index.js",
+  "main": "dist/apps/server/src/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/apps/server/src/index.js",
     "dev": "nodemon src/index.ts",
     "seed": "ts-node src/seed.ts",
     "import-trains": "ts-node src/import-trains.ts",
