@@ -47,6 +47,9 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     // Generate unique UID
     const uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
+    const userRoleToSave = role || 'passenger';
+    const isStaff = userRoleToSave === 'admin' || userRoleToSave === 'driver';
+
     const newUser = new User({
       uid,
       name,
@@ -55,13 +58,19 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       phone: normalizedPhone,
       aadharNumber,
       age: age || null,
-      role: role || 'passenger',
-      emailVerified: false,
+      role: userRoleToSave,
+      emailVerified: isStaff, // Staff accounts bypass OTP
     });
 
     await newUser.save();
 
-    // Generate and store OTP
+    if (isStaff) {
+      // Auto-verify staff to bypass OTP step
+      res.status(201).json({ message: 'account_created', email });
+      return;
+    }
+
+    // Generate and store OTP for passengers
     const otp = generateOtp();
     otpStore.set(email, { otp, expiresAt: Date.now() + 10 * 60 * 1000 }); // 10 min
 
