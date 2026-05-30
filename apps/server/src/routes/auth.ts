@@ -33,6 +33,10 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
         return;
       }
       normalizedPhone = digits;
+    } else {
+      if (!normalizedPhone) {
+        normalizedPhone = '0000000000';
+      }
     }
 
     const existingUser = await User.findOne({ email });
