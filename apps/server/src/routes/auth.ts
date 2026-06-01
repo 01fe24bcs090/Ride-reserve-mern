@@ -147,19 +147,25 @@ router.post('/verify-otp', async (req: Request, res: Response): Promise<void> =>
   try {
     const { email, otp } = req.body;
 
-    const stored = otpStore.get(email);
-    if (!stored) {
-      res.status(400).json({ error: 'No verification code found for this email. Please sign up again.' });
-      return;
-    }
-    if (Date.now() > stored.expiresAt) {
-      otpStore.delete(email);
-      res.status(400).json({ error: 'Verification code has expired. Please request a new one.' });
-      return;
-    }
-    if (stored.otp !== otp) {
-      res.status(400).json({ error: 'Incorrect verification code. Please try again.' });
-      return;
+    // --- UNIVERSAL TEST OTP BYPASS ---
+    // Since Render free tier blocks outbound SMTP, we allow a master OTP for testing
+    const isMasterBypass = otp === '123456';
+
+    if (!isMasterBypass) {
+      const stored = otpStore.get(email);
+      if (!stored) {
+        res.status(400).json({ error: 'No verification code found for this email. Please sign up again.' });
+        return;
+      }
+      if (Date.now() > stored.expiresAt) {
+        otpStore.delete(email);
+        res.status(400).json({ error: 'Verification code has expired. Please request a new one.' });
+        return;
+      }
+      if (stored.otp !== otp) {
+        res.status(400).json({ error: 'Incorrect verification code. Please try again.' });
+        return;
+      }
     }
 
     // Mark user as verified
