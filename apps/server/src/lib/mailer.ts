@@ -37,11 +37,13 @@ export async function sendOtpEmail(toEmail: string, otp: string): Promise<void> 
         host: smtpHost,
         port: smtpPort,
         secure: smtpPortStr === '465',
-        family: 4, // Force IPv4 to prevent ENETUNREACH errors on platforms without IPv6 support (like Render)
         auth: {
           user: smtpUser,
           pass: smtpPass,
         },
+        lookup: (hostname: string, options: any, callback: any) => {
+          dns.lookup(hostname, { ...options, family: 4 }, callback);
+        }
       } as any);
     } else {
       // Create Ethereal test account dynamically for dynamic mail preview
