@@ -33,18 +33,30 @@ export async function sendOtpEmail(toEmail: string, otp: string): Promise<void> 
     const smtpPort = parseInt(smtpPortStr);
 
     if (smtpHost && smtpUser && smtpPass) {
+      // BULLETPROOF FIX: Manually resolve IPv4 address to completely bypass any internal IPv6 routing defaults
+      let resolvedIp = smtpHost;
+      try {
+        const ips = await dns.promises.resolve4(smtpHost);
+        if (ips && ips.length > 0) {
+          resolvedIp = ips[0] as string; // Use the guaranteed IPv4 address
+        }
+      } catch (err) {
+        console.warn('Manual IPv4 DNS resolution failed, falling back to hostname');
+      }
+
       transporter = nodemailer.createTransport({
-        host: smtpHost,
+        host: resolvedIp,
         port: smtpPort,
         secure: smtpPortStr === '465',
         auth: {
           user: smtpUser,
           pass: smtpPass,
         },
-        lookup: (hostname: string, options: any, callback: any) => {
-          dns.lookup(hostname, { ...options, family: 4 }, callback);
+        tls: {
+          // Required so the SSL certificate matches smtp.gmail.com instead of the raw IP address
+          servername: smtpHost as string,
         }
-      } as any);
+      });
     } else {
       // Create Ethereal test account dynamically for dynamic mail preview
       const testAccount = await nodemailer.createTestAccount();

@@ -1,0 +1,144 @@
+<mxfile host="Electron" modified="2026-05-31T02:15:00.000Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.3.7 Chrome/112.0.5615.204 Electron/24.5.0 Safari/537.36" version="21.3.7" type="device">
+  <diagram id="ride-reserve-whole-system" name="Ride Reserve Use Case Diagram">
+    <mxGraphModel dx="1422" dy="898" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <!-- Layer Root Cells -->
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- System Boundary Box -->
+        <mxCell id="2" value="Ride Reserve - SmartBOV Platform (System Boundary)" style="swimlane;startSize=40;html=1;whiteSpace=wrap;fillColor=#18181B;strokeColor=#3F3F46;fontColor=#FFFFFF;fontSize=15;fontStyle=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="180" y="40" width="760" height="740" as="geometry" />
+        </mxCell>
+
+        <!-- Passenger Use Cases -->
+        <mxCell id="10" value="Login / OTP Register" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1E3A8A;strokeColor=#3B82F6;fontColor=#EFF6FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="60" y="70" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="Book SmartBOV Ride&#xa;(PNR / Train Lookup)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1E3A8A;strokeColor=#3B82F6;fontColor=#EFF6FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="60" y="150" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="12" value="Track Queue &amp;&#xa;Estimated Wait Time" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1E3A8A;strokeColor=#3B82F6;fontColor=#EFF6FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="60" y="230" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="Verify Boarding PIN&#xa;(Start OTP verification)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1E3A8A;strokeColor=#3B82F6;fontColor=#EFF6FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="60" y="310" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="Cancel Pending Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1E3A8A;strokeColor=#3B82F6;fontColor=#EFF6FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="60" y="390" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Driver Use Cases -->
+        <mxCell id="20" value="Driver Login &amp;&#xa;Duty Status Toggle" style="ellipse;whiteSpace=wrap;html=1;fillColor=#064E3B;strokeColor=#10B981;fontColor=#ECFDF5;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="60" y="470" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="View Available&#xa;Booking Queue Feed" style="ellipse;whiteSpace=wrap;html=1;fillColor=#064E3B;strokeColor=#10B981;fontColor=#ECFDF5;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="60" y="550" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="Accept Ride Allocation&#xa;&amp; Assign Vehicle" style="ellipse;whiteSpace=wrap;html=1;fillColor=#064E3B;strokeColor=#10B981;fontColor=#ECFDF5;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="60" y="630" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Dynamic Shared Core Use Cases (Center) -->
+        <mxCell id="14" value="🚨 Trigger Emergency SOS&#xa;(WebSocket Broadcast)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#7F1D1D;strokeColor=#EF4444;fontColor=#FEF2F2;fontSize=13;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="290" y="340" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Admin Use Cases -->
+        <mxCell id="30" value="Admin Console Auth" style="ellipse;whiteSpace=wrap;html=1;fillColor=#701A75;strokeColor=#D946EF;fontColor=#FDF4FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="520" y="70" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="31" value="Manage BOVs &amp;&#xa;Driver Duty Schedules" style="ellipse;whiteSpace=wrap;html=1;fillColor=#701A75;strokeColor=#D946EF;fontColor=#FDF4FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="520" y="150" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="32" value="Import Train Schedules&#xa;(Excel/CSV Parsing)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#701A75;strokeColor=#D946EF;fontColor=#FDF4FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="520" y="230" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="33" value="Configure Peak Hours&#xa;&amp; Dynamic Fare Rules" style="ellipse;whiteSpace=wrap;html=1;fillColor=#701A75;strokeColor=#D946EF;fontColor=#FDF4FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="520" y="310" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="34" value="Monitor Live Booking&#xa;Queues &amp; Active Rides" style="ellipse;whiteSpace=wrap;html=1;fillColor=#701A75;strokeColor=#D946EF;fontColor=#FDF4FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="520" y="390" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="35" value="Analyze Daily Metrics&#xa;&amp; Travel Analytics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#701A75;strokeColor=#D946EF;fontColor=#FDF4FF;fontSize=12;fontStyle=1;" parent="2" vertex="1">
+          <mxGeometry x="520" y="470" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Primary Actor: Passenger (Left Upper) -->
+        <mxCell id="3" value="Passenger" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#2563EB;strokeColor=#1D4ED8;fontColor=#FFFFFF;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="60" y="170" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Primary Actor: Driver (Left Lower) -->
+        <mxCell id="4" value="Driver" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#059669;strokeColor=#047857;fontColor=#FFFFFF;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="60" y="550" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Primary Actor: Station Admin (Right Upper) -->
+        <mxCell id="5" value="Station Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#DC2626;strokeColor=#B91C1C;fontColor=#FFFFFF;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1060" y="230" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Association Connectors: Passenger -->
+        <mxCell id="40" style="endArrow=none;html=1;strokeColor=#3B82F6;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="3" target="10" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="41" style="endArrow=none;html=1;strokeColor=#3B82F6;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="3" target="11" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42" style="endArrow=none;html=1;strokeColor=#3B82F6;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="3" target="12" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="43" style="endArrow=none;html=1;strokeColor=#3B82F6;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="3" target="13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="44" style="endArrow=none;html=1;strokeColor=#3B82F6;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="3" target="15" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="45" style="endArrow=none;html=1;strokeColor=#EF4444;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="3" target="14" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Association Connectors: Driver -->
+        <mxCell id="50" style="endArrow=none;html=1;strokeColor=#10B981;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="4" target="20" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="51" style="endArrow=none;html=1;strokeColor=#10B981;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="4" target="21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="52" style="endArrow=none;html=1;strokeColor=#10B981;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="4" target="22" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="53" style="endArrow=none;html=1;strokeColor=#10B981;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="4" target="13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="54" style="endArrow=none;html=1;strokeColor=#EF4444;strokeWidth=2;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="4" target="14" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Association Connectors: Admin -->
+        <mxCell id="60" style="endArrow=none;html=1;strokeColor=#D946EF;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="30" target="5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="61" style="endArrow=none;html=1;strokeColor=#D946EF;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="31" target="5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="62" style="endArrow=none;html=1;strokeColor=#D946EF;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="32" target="5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="63" style="endArrow=none;html=1;strokeColor=#D946EF;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="33" target="5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="64" style="endArrow=none;html=1;strokeColor=#D946EF;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="34" target="5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="65" style="endArrow=none;html=1;strokeColor=#D946EF;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="35" target="5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="66" style="endArrow=none;html=1;strokeColor=#EF4444;strokeWidth=2;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="5" target="14" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

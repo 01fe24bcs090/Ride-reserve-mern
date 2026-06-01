@@ -1,0 +1,367 @@
+<mxfile host="Electron" modified="2026-05-31T02:40:00.000Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.3.7 Chrome/112.0.5615.204 Electron/24.5.0 Safari/537.36" version="21.3.7" type="device">
+  
+  <!-- PAGE 1: SYSTEM CONTEXT MODEL -->
+  <diagram id="system-context-model" name="1. System Context Model">
+    <mxGraphModel dx="1422" dy="898" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- System Boundary Center -->
+        <mxCell id="ctx-system" value="&lt;b&gt;Ride Reserve Server&lt;/b&gt;&lt;br&gt;(Express API &amp;amp; Socket.io Gateway)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F4F6;strokeColor=#1F2937;fontColor=#111827;fontSize=14;align=center;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="440" y="280" width="280" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- External Entity: Passenger -->
+        <mxCell id="ctx-passenger" value="&lt;b&gt;Passenger App Client&lt;/b&gt;&lt;br&gt;(React SPA)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#EFF6FF;strokeColor=#2563EB;fontColor=#1E3A8A;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="80" y="100" width="220" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- External Entity: Driver -->
+        <mxCell id="ctx-driver" value="&lt;b&gt;Driver App Client&lt;/b&gt;&lt;br&gt;(React SPA)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#ECFDF5;strokeColor=#059669;fontColor=#064E3B;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="80" y="460" width="220" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- External Entity: Station Admin -->
+        <mxCell id="ctx-admin" value="&lt;b&gt;Admin Operations Console&lt;/b&gt;&lt;br&gt;(Vite Dashboard)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#FFF1F2;strokeColor=#E11D48;fontColor=#9F1239;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="860" y="100" width="220" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- External Entity: Database -->
+        <mxCell id="ctx-db" value="&lt;b&gt;MongoDB Database&lt;/b&gt;&lt;br&gt;(Mongoose Layer)" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#FDF2F8;strokeColor=#DB2777;fontColor=#831843;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="890" y="440" width="160" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Data Flows: Passenger -->
+        <mxCell id="flow-pass-in" value="Booking Details &amp;amp; OTP Request" style="endArrow=classic;html=1;strokeColor=#2563EB;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;curved=1;" parent="1" source="ctx-passenger" target="ctx-system" edge="1">
+          <mxGeometry x="-0.15" y="-15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-pass-out" value="Wait Times, Boarding PIN, Surcharges" style="endArrow=classic;html=1;strokeColor=#2563EB;strokeWidth=1.5;exitX=0.15;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;curved=1;" parent="1" source="ctx-system" target="ctx-passenger" edge="1">
+          <mxGeometry x="0.15" y="15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-pass-sos" value="🚨 Emergency SOS Trigger" style="endArrow=classic;html=1;strokeColor=#EF4444;strokeWidth=1.5;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="ctx-passenger" target="ctx-system" edge="1">
+          <mxGeometry x="-0.3" y="10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Data Flows: Driver -->
+        <mxCell id="flow-driv-in" value="Duty Toggles &amp;amp; Location Updates" style="endArrow=classic;html=1;strokeColor=#059669;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;curved=1;" parent="1" source="ctx-driver" target="ctx-system" edge="1">
+          <mxGeometry x="0.15" y="-15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-driv-out" value="Assigned Rides &amp;amp; Passengers Info" style="endArrow=classic;html=1;strokeColor=#059669;strokeWidth=1.5;exitX=0.15;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;curved=1;" parent="1" source="ctx-system" target="ctx-driver" edge="1">
+          <mxGeometry x="-0.15" y="15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-driv-pin" value="Boarding Verification PIN" style="endArrow=classic;html=1;strokeColor=#059669;strokeWidth=1.5;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.9;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="ctx-driver" target="ctx-system" edge="1">
+          <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Data Flows: Admin -->
+        <mxCell id="flow-adm-in" value="Timetables &amp;amp; Peak Pricing Rules" style="endArrow=classic;html=1;strokeColor=#E11D48;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;curved=1;" parent="1" source="ctx-admin" target="ctx-system" edge="1">
+          <mxGeometry x="-0.15" y="15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-adm-out" value="Live Dashboards &amp;amp; SOS Audio Alerts" style="endArrow=classic;html=1;strokeColor=#E11D48;strokeWidth=1.5;exitX=0.85;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;curved=1;" parent="1" source="ctx-system" target="ctx-admin" edge="1">
+          <mxGeometry x="0.15" y="-15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Data Flows: Database -->
+        <mxCell id="flow-db-trans" value="Read / Write Transactions" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#DB2777;strokeWidth=1.5;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="ctx-system" target="ctx-db" edge="1">
+          <mxGeometry y="15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- PAGE 2: UML SEQUENCE DIAGRAM -->
+  <diagram id="uml-sequence-model" name="2. Sequence of Events">
+    <mxGraphModel dx="1422" dy="898" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Lifelines (Actors and Components) -->
+        <mxCell id="ll-passenger" value="Passenger" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EFF6FF;strokeColor=#2563EB;" parent="1" vertex="1">
+          <mxGeometry x="80" y="40" width="100" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="ll-pass-web" value="Passenger App" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EFF6FF;strokeColor=#2563EB;" parent="1" vertex="1">
+          <mxGeometry x="260" y="40" width="120" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="ll-server" value="Express API Server" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#F3F4F6;strokeColor=#1F2937;" parent="1" vertex="1">
+          <mxGeometry x="480" y="40" width="140" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="ll-db" value="MongoDB" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FDF2F8;strokeColor=#DB2777;" parent="1" vertex="1">
+          <mxGeometry x="720" y="40" width="100" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="ll-driv-web" value="Driver App" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#ECFDF5;strokeColor=#059669;" parent="1" vertex="1">
+          <mxGeometry x="920" y="40" width="120" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Message Exchanges (Transitions) -->
+        <mxCell id="msg1" value="1. Enters PNR / selects passengers" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#2563EB;" parent="1" source="ll-passenger" target="ll-pass-web" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="140" y="110" as="sourcePoint" />
+            <mxPoint x="310" y="110" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg2" value="2. POST /api/bookings" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#2563EB;" parent="1" source="ll-pass-web" target="ll-server" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="320" y="140" as="sourcePoint" />
+            <mxPoint x="540" y="140" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Server side check box -->
+        <mxCell id="rect-fare" value="Calculate Fare &amp; Surcharges&#xa;Run Seat Optimizer&#xa;Generate startPin" style="shape=note;whiteSpace=wrap;html=1;size=12;fillColor=#FFFBEB;strokeColor=#D97706;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="560" y="150" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="msg3" value="3. Save Booking document" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#1F2937;" parent="1" source="ll-server" target="ll-db" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="550" y="230" as="sourcePoint" />
+            <mxPoint x="760" y="230" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg4" value="4. Return Booking details &amp; PIN" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;strokeColor=#1F2937;" parent="1" source="ll-server" target="ll-pass-web" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="540" y="270" as="sourcePoint" />
+            <mxPoint x="330" y="270" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg5" value="5. Emit 'new_booking_pending' (Socket)" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#059669;" parent="1" source="ll-server" target="ll-driv-web" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="560" y="310" as="sourcePoint" />
+            <mxPoint x="970" y="310" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg6" value="6. Displays Boarding PIN" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;strokeColor=#2563EB;" parent="1" source="ll-pass-web" target="ll-passenger" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="310" y="340" as="sourcePoint" />
+            <mxPoint x="140" y="340" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Part 2: Acceptance -->
+        <mxCell id="msg7" value="7. Accept Ride &amp; allocate BOV" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#059669;" parent="1" source="ll-driv-web" target="ll-server" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="970" y="390" as="sourcePoint" />
+            <mxPoint x="560" y="390" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg8" value="8. Update rideStatus='confirmed'" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#1F2937;" parent="1" source="ll-server" target="ll-db" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="550" y="420" as="sourcePoint" />
+            <mxPoint x="760" y="420" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg9" value="9. Push 'booking_update' to Passenger Client" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#2563EB;" parent="1" source="ll-server" target="ll-pass-web" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="540" y="460" as="sourcePoint" />
+            <mxPoint x="330" y="460" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Part 3: Handshake verification -->
+        <mxCell id="msg10" value="10. Passenger verbally says 4-digit PIN" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#111827;dashed=1;" parent="1" source="ll-passenger" target="ll-driv-web" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="140" y="520" as="sourcePoint" />
+            <mxPoint x="970" y="520" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg11" value="11. PATCH /api/bookings/:id/status (with input PIN)" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#059669;" parent="1" source="ll-driv-web" target="ll-server" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="970" y="560" as="sourcePoint" />
+            <mxPoint x="560" y="560" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg12" value="12. Verify PIN matches &amp; update rideStatus='in-progress'" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#1F2937;" parent="1" source="ll-server" target="ll-db" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="550" y="600" as="sourcePoint" />
+            <mxPoint x="760" y="600" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg13" value="13. Notify Passengers &amp; Drivers (Socket Broadcast)" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#2563EB;" parent="1" source="ll-server" target="ll-pass-web" edge="1">
+          <mxGeometry y="10" relative="1" as="geometry">
+            <mxPoint x="540" y="640" as="sourcePoint" />
+            <mxPoint x="330" y="640" as="targetPoint" />
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- PAGE 3: UML BOOKING STATE MACHINE -->
+  <diagram id="uml-state-model" name="3. Booking State Machine">
+    <mxGraphModel dx="1422" dy="898" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Initial State -->
+        <mxCell id="st-init" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#111827;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="80" y="160" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- State: Pending -->
+        <mxCell id="st-pending" value="&lt;b&gt;Pending&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;align=left&gt;- Calculate secure fare&lt;br&gt;- Match pool allocations&lt;/align&gt;" style="html=1;align=center;whiteSpace=wrap;rounded=1;fillColor=#EFF6FF;strokeColor=#2563EB;fontColor=#1E3A8A;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="190" y="125" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- State: Confirmed -->
+        <mxCell id="st-confirmed" value="&lt;b&gt;Confirmed&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;align=left&gt;- Driver assigned&lt;br&gt;- Vehicle allocated&lt;br&gt;- 4-digit PIN generated&lt;/align&gt;" style="html=1;align=center;whiteSpace=wrap;rounded=1;fillColor=#FFFBEB;strokeColor=#D97706;fontColor=#78350F;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="460" y="125" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- State: In-Progress -->
+        <mxCell id="st-inprogress" value="&lt;b&gt;In-Progress&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;align=left&gt;- Active transit&lt;br&gt;- SOS emergency active&lt;/align&gt;" style="html=1;align=center;whiteSpace=wrap;rounded=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontColor=#1B5E20;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="730" y="125" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- State: Completed -->
+        <mxCell id="st-completed" value="&lt;b&gt;Completed&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;align=left&gt;- Passenger arrived&lt;br&gt;- Ratings feedback active&lt;/align&gt;" style="html=1;align=center;whiteSpace=wrap;rounded=1;fillColor=#F3F4F6;strokeColor=#374151;fontColor=#111827;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="980" y="125" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- State: Cancelled -->
+        <mxCell id="st-cancelled" value="&lt;b&gt;Cancelled&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;align=left&gt;- Seats released&lt;br&gt;- History archived&lt;/align&gt;" style="html=1;align=center;whiteSpace=wrap;rounded=1;fillColor=#FEF2F2;strokeColor=#EF4444;fontColor=#991B1B;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="320" y="360" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Final State -->
+        <mxCell id="st-final" value="" style="ellipse;html=1;shape=endState;fillColor=#111827;strokeColor=#111827;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="930" y="395" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Transitions -->
+        <mxCell id="tr1" value="Create Booking" style="endArrow=classic;html=1;strokeColor=#2563EB;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="st-init" target="st-pending" edge="1">
+          <mxGeometry y="-10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tr2" value="Driver Accepts Ride" style="endArrow=classic;html=1;strokeColor=#2563EB;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="st-pending" target="st-confirmed" edge="1">
+          <mxGeometry y="-10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tr3" value="Verify Boarding PIN&#xa;(Correct Handshake)" style="endArrow=classic;html=1;strokeColor=#059669;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="st-confirmed" target="st-inprogress" edge="1">
+          <mxGeometry y="-15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tr4" value="Driver Completes Trip" style="endArrow=classic;html=1;strokeColor=#374151;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="st-inprogress" target="st-completed" edge="1">
+          <mxGeometry y="-10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Cancellation paths -->
+        <mxCell id="tr5" value="Cancel (Passenger)" style="endArrow=classic;html=1;strokeColor=#EF4444;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="st-pending" target="st-cancelled" edge="1">
+          <mxGeometry x="-0.4" y="-10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tr6" value="Cancel (Passenger / Admin)" style="endArrow=classic;html=1;strokeColor=#EF4444;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="st-confirmed" target="st-cancelled" edge="1">
+          <mxGeometry x="-0.4" y="10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Final flows -->
+        <mxCell id="tr7" style="endArrow=classic;html=1;strokeColor=#374151;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="st-completed" target="st-final" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tr8" style="endArrow=classic;html=1;strokeColor=#374151;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="st-cancelled" target="st-final" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- PAGE 4: UML CLASS DIAGRAM (MONGOOSE SCHEMAS) -->
+  <diagram id="uml-class-model" name="4. Mongoose Class Model">
+    <mxGraphModel dx="1422" dy="898" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Class User -->
+        <mxCell id="cl-user" value="&lt;b&gt;User Schema&lt;/b&gt;&lt;br&gt;&lt;hr&gt;+ uid: String (PK)&lt;br&gt;+ name: String&lt;br&gt;+ email: String&lt;br&gt;+ password: String&lt;br&gt;+ phone: String&lt;br&gt;+ role: String (Enum)&lt;br&gt;+ assignedBovId: String&lt;br&gt;+ active: Boolean&lt;br&gt;+ lastLoginAt: Date" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#EFF6FF;strokeColor=#2563EB;fontColor=#1E3A8A;" parent="1" vertex="1">
+          <mxGeometry x="60" y="60" width="220" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- Class Booking -->
+        <mxCell id="cl-booking" value="&lt;b&gt;Booking Schema&lt;/b&gt;&lt;br&gt;&lt;hr&gt;+ bookingId: String (PK)&lt;br&gt;+ passengerId: String (FK)&lt;br&gt;+ passengerName: String&lt;br&gt;+ trainNumber: String (FK)&lt;br&gt;+ journeyType: String&lt;br&gt;+ isPriorityPassenger: Boolean&lt;br&gt;+ luggageWeight: Number&lt;br&gt;+ fromPlatform: String&lt;br&gt;+ toPlatform: String&lt;br&gt;+ seats: Number&lt;br&gt;+ bovId: String (FK)&lt;br&gt;+ rideStatus: String (Enum)&lt;br&gt;+ scheduledTime: Date&lt;br&gt;+ fare: Number&lt;br&gt;+ acceptedBy: String (FK)&lt;br&gt;+ isSharedRide: Boolean&lt;br&gt;+ sharedPoolId: String&lt;br&gt;+ startPin: String" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#FFFBEB;strokeColor=#D97706;fontColor=#78350F;" parent="1" vertex="1">
+          <mxGeometry x="440" y="60" width="240" height="340" as="geometry" />
+        </mxCell>
+
+        <!-- Class Bov -->
+        <mxCell id="cl-bov" value="&lt;b&gt;Bov Schema&lt;/b&gt;&lt;br&gt;&lt;hr&gt;+ bovId: String (PK)&lt;br&gt;+ vehicleNumber: String&lt;br&gt;+ totalSeats: Number&lt;br&gt;+ status: String (Enum)&lt;br&gt;+ assignedDriverId: String (FK)&lt;br&gt;+ currentPlatform: String" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#ECFDF5;strokeColor=#059669;fontColor=#064E3B;" parent="1" vertex="1">
+          <mxGeometry x="840" y="60" width="240" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Class Train -->
+        <mxCell id="cl-train" value="&lt;b&gt;Train Schema&lt;/b&gt;&lt;br&gt;&lt;hr&gt;+ trainNumber: String (PK)&lt;br&gt;+ trainName: String&lt;br&gt;+ type: String (Enum)&lt;br&gt;+ scheduledArrival: String&lt;br&gt;+ scheduledDeparture: String&lt;br&gt;+ platformNumber: String&lt;br&gt;+ origin: String&lt;br&gt;+ destination: String&lt;br&gt;+ isActive: Boolean" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#FFF1F2;strokeColor=#E11D48;fontColor=#9F1239;" parent="1" vertex="1">
+          <mxGeometry x="60" y="440" width="220" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- Class PeakHour -->
+        <mxCell id="cl-peakhour" value="&lt;b&gt;PeakHour Schema&lt;/b&gt;&lt;br&gt;&lt;hr&gt;+ label: String&lt;br&gt;+ startTime: String&lt;br&gt;+ endTime: String&lt;br&gt;+ multiplier: Number" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#FDF2F8;strokeColor=#DB2777;fontColor=#831843;" parent="1" vertex="1">
+          <mxGeometry x="840" y="440" width="240" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Structural Association Lines -->
+        <mxCell id="assoc1" value="books [0..*]" style="endArrow=classic;html=1;strokeColor=#1F2937;strokeWidth=1.5;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.15;entryDx=0;entryDy=0;" parent="1" source="cl-user" target="cl-booking" edge="1">
+          <mxGeometry x="-0.1" y="10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc2" value="accepts [0..*]" style="endArrow=classic;html=1;strokeColor=#1F2937;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.45;entryDx=0;entryDy=0;" parent="1" source="cl-user" target="cl-booking" edge="1">
+          <mxGeometry x="-0.15" y="-10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc3" value="drives [0..1]" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#1F2937;strokeWidth=1.5;exitX=1;exitY=0.1;exitDx=0;exitDy=0;entryX=0;entryY=0.2;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="cl-user" target="cl-bov" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="290" y="80" as="sourcePoint" />
+            <mxPoint x="830" y="80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc4" value="references [1]" style="endArrow=classic;html=1;strokeColor=#1F2937;strokeWidth=1.5;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.8;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="cl-train" target="cl-booking" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc5" value="allocates [0..*]" style="endArrow=classic;html=1;strokeColor=#1F2937;strokeWidth=1.5;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.65;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="cl-bov" target="cl-booking" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+</mxfile>
