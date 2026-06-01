@@ -1,4 +1,11 @@
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+
+// Force Node.js DNS resolver to prefer IPv4 over IPv6 globally
+// This prevents ENETUNREACH errors on cloud hosting environments (like Render) that lack IPv6 routes
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 /**
  * Sends a premium-styled HTML email containing a 6-digit OTP code to verify a user's email.
