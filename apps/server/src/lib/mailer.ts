@@ -18,15 +18,21 @@ export async function sendOtpEmail(toEmail: string, otp: string): Promise<void> 
   try {
     let transporter: nodemailer.Transporter;
 
-    // Check if custom SMTP env variables are defined
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    // Trim all SMTP variables to prevent timeout/auth issues from copy-paste trailing spaces
+    const smtpHost = process.env.SMTP_HOST?.trim();
+    const smtpUser = process.env.SMTP_USER?.trim();
+    const smtpPass = process.env.SMTP_PASS?.trim();
+    const smtpPortStr = process.env.SMTP_PORT?.trim() || '587';
+    const smtpPort = parseInt(smtpPortStr);
+
+    if (smtpHost && smtpUser && smtpPass) {
       transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_PORT === '465',
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPortStr === '465',
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
+          user: smtpUser,
+          pass: smtpPass,
         },
       });
     } else {
