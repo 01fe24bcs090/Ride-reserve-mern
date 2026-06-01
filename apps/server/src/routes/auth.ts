@@ -47,7 +47,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    
+
     // Generate unique UID
     const uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
@@ -134,9 +134,9 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       { expiresIn: '30d' }
     );
 
-    res.status(200).json({ 
-      token, 
-      user: { uid: user.uid, name: user.name, email: user.email, role: user.role, phone: user.phone } 
+    res.status(200).json({
+      token,
+      user: { uid: user.uid, name: user.name, email: user.email, role: user.role, phone: user.phone }
     });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -147,25 +147,19 @@ router.post('/verify-otp', async (req: Request, res: Response): Promise<void> =>
   try {
     const { email, otp } = req.body;
 
-    // --- UNIVERSAL TEST OTP BYPASS ---
-    // Since Render free tier blocks outbound SMTP, we allow a master OTP for testing
-    const isMasterBypass = otp === '123456';
-
-    if (!isMasterBypass) {
-      const stored = otpStore.get(email);
-      if (!stored) {
-        res.status(400).json({ error: 'No verification code found for this email. Please sign up again.' });
-        return;
-      }
-      if (Date.now() > stored.expiresAt) {
-        otpStore.delete(email);
-        res.status(400).json({ error: 'Verification code has expired. Please request a new one.' });
-        return;
-      }
-      if (stored.otp !== otp) {
-        res.status(400).json({ error: 'Incorrect verification code. Please try again.' });
-        return;
-      }
+    const stored = otpStore.get(email);
+    if (!stored) {
+      res.status(400).json({ error: 'No verification code found for this email. Please sign up again.' });
+      return;
+    }
+    if (Date.now() > stored.expiresAt) {
+      otpStore.delete(email);
+      res.status(400).json({ error: 'Verification code has expired. Please request a new one.' });
+      return;
+    }
+    if (stored.otp !== otp) {
+      res.status(400).json({ error: 'Incorrect verification code. Please try again.' });
+      return;
     }
 
     // Mark user as verified
