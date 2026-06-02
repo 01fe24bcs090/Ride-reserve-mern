@@ -1553,7 +1553,7 @@ export default function App() {
                       </h3>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', fontSize: '0.9rem', color: '#475569' }}>
                         <div><strong>Route:</strong> {train.origin} to {train.destination}</div>
-                        <div><strong>Station Platform:</strong> Platform {train.platformNumber}</div>
+                        <div><strong>Station Platform:</strong> {train.platformNumber.toLowerCase().startsWith("platform") ? train.platformNumber : `Platform ${train.platformNumber}`}</div>
                         <div><strong>Timings:</strong> Arr: {train.scheduledArrival ?? "N/A"} | Dep: {train.scheduledDeparture ?? "N/A"}</div>
                       </div>
                     </article>
@@ -1660,7 +1660,7 @@ export default function App() {
                         <input
                           type="text"
                           readOnly
-                          value={train ? `Platform ${train.platformNumber}` : "Fetch train first"}
+                          value={train ? (train.platformNumber.toLowerCase().startsWith("platform") ? train.platformNumber : `Platform ${train.platformNumber}`) : "Fetch train first"}
                           style={{
                             padding: '12px 16px',
                             borderRadius: '12px',
@@ -1701,7 +1701,7 @@ export default function App() {
                         <input
                           type="text"
                           readOnly
-                          value={train ? `Platform ${train.platformNumber}` : "Fetch train first"}
+                          value={train ? (train.platformNumber.toLowerCase().startsWith("platform") ? train.platformNumber : `Platform ${train.platformNumber}`) : "Fetch train first"}
                           style={{
                             padding: '12px 16px',
                             borderRadius: '12px',
