@@ -40,6 +40,7 @@ const seedDatabase = async () => {
       active: true,
       phone: '9999999999',
       age: 25,
+      emailVerified: true,
     });
 
     const driver1 = await User.create({
@@ -52,6 +53,7 @@ const seedDatabase = async () => {
       assignedBovId: 'BOV-01',
       phone: '8888888888',
       age: 30,
+      emailVerified: true,
     });
 
     const driver2 = await User.create({
@@ -64,6 +66,7 @@ const seedDatabase = async () => {
       assignedBovId: 'BOV-02',
       phone: '7777777777',
       age: 28,
+      emailVerified: true,
     });
 
     const passenger = await User.create({
@@ -75,6 +78,7 @@ const seedDatabase = async () => {
       active: true,
       phone: '6666666666',
       age: 22,
+      emailVerified: true,
     });
 
     // 2. BOVs

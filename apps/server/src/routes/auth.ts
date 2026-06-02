@@ -114,7 +114,8 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     // We treat existing users (emailVerified = undefined or null in old documents) as verified
     // Only block users who explicitly have emailVerified === false (newly registered)
     const userObj = user.toObject() as any;
-    if (userObj.emailVerified === false && userObj.createdAt && new Date(userObj.createdAt) > new Date('2026-05-28T00:00:00Z')) {
+    const isStaff = user.role === 'admin' || user.role === 'driver';
+    if (!isStaff && userObj.emailVerified === false && userObj.createdAt && new Date(userObj.createdAt) > new Date('2026-05-28T00:00:00Z')) {
       const otp = generateOtp();
       otpStore.set(email, { otp, expiresAt: Date.now() + 10 * 60 * 1000 });
       sendOtpEmail(email, otp).catch((err) => {
